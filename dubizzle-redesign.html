@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dubizzle — Buy, Sell & Find in Dubai</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+/* ── RESET & BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --orange: #FF5722;
+  --orange-dark: #E64A19;
+  --orange-light: #FFF3EE;
+  --dark: #1C1C2E;
+  --dark-2: #2C2C3E;
+  --text: #3D3D4E;
+  --muted: #7A7A8C;
+  --border: #E8E8F0;
+  --bg: #F7F8FC;
+  --white: #FFFFFF;
+  --green: #00C48C;
+  --blue: #2563EB;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --shadow-hover: 0 8px 32px rgba(0,0,0,0.14);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+a { text-decoration: none; color: inherit; }
+ul { list-style: none; }
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.section { padding: 64px 0; }
+.bg-light { background: var(--white); }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.section-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.see-all {
+  color: var(--orange);
+  font-weight: 600;
+  font-size: 14px;
+  transition: opacity .2s;
+}
+.see-all:hover { opacity: .7; }
+
+/* ── TOPBAR ── */
+.topbar {
+  background: var(--dark);
+  color: #aaa;
+  font-size: 13px;
+  padding: 8px 0;
+}
+.topbar-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.topbar-links { display: flex; gap: 20px; }
+.topbar-links a { color: #aaa; transition: color .2s; }
+.topbar-links a:hover { color: var(--white); }
+
+/* ── NAVBAR ── */
+.navbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  height: 68px;
+}
+
+.logo {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  flex-shrink: 0;
+}
+.logo-dubi { color: var(--dark); }
+.logo-zzle { color: var(--orange); }
+
+.nav-categories {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.nav-link {
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text);
+  transition: all .2s;
+  position: relative;
+}
+.nav-link:hover { color: var(--orange); background: var(--orange-light); }
+.nav-link.active { color: var(--orange); font-weight: 600; }
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: var(--orange);
+  border-radius: 2px;
+}
+
+.nav-actions { display: flex; gap: 10px; margin-left: auto; }
+
+.btn-ghost {
+  padding: 8px 18px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text);
+  transition: all .2s;
+}
+.btn-ghost:hover { border-color: var(--orange); color: var(--orange); }
+
+.btn-primary {
+  padding: 8px 20px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--orange);
+  color: var(--white);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s, transform .1s;
+}
+.btn-primary:hover { background: var(--orange-dark); transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+
+/* ── HERO ── */
+.hero {
+  position: relative;
+  background: linear-gradient(135deg, #1C1C2E 0%, #2C1654 50%, #1a2850 100%);
+  padding: 90px 0 80px;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: var(--bg);
+  clip-path: ellipse(55% 100% at 50% 100%);
+}
+
+.hero-overlay {
+  position: absolute;
+  top: -100px;
+  right: -100px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255,87,34,.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-inner { position: relative; z-index: 1; text-align: center; }
+
+.hero-title {
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 800;
+  color: var(--white);
+  letter-spacing: -1.5px;
+  margin-bottom: 12px;
+}
+
+.hero-sub {
+  font-size: 17px;
+  color: rgba(255,255,255,.7);
+  margin-bottom: 40px;
+}
+
+/* Search Box */
+.search-box {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 8px;
+  max-width: 760px;
+  margin: 0 auto 36px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.3);
+}
+
+.search-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px 4px 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+
+.stab {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all .2s;
+}
+.stab:hover { color: var(--orange); background: var(--orange-light); }
+.stab.active { background: var(--orange); color: var(--white); }
+
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  padding: 10px 14px;
+  color: var(--muted);
+}
+
+.search-field input {
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--text);
+  width: 100%;
+  background: transparent;
+}
+.search-field input::placeholder { color: var(--muted); }
+
+.location-field { flex: 0 0 200px; }
+
+.search-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.search-btn {
+  padding: 12px 28px;
+  background: var(--orange);
+  color: var(--white);
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 4px;
+  transition: background .2s, transform .1s;
+  white-space: nowrap;
+}
+.search-btn:hover { background: var(--orange-dark); }
+
+/* Hero Stats */
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+  color: rgba(255,255,255,.85);
+}
+
+.stat { text-align: center; }
+.stat strong { display: block; font-size: 22px; font-weight: 700; color: var(--white); }
+.stat span { font-size: 13px; color: rgba(255,255,255,.6); }
+.stat-divider { width: 1px; height: 32px; background: rgba(255,255,255,.15); }
+
+/* ── CATEGORIES ── */
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.cat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: all .25s;
+  cursor: pointer;
+}
+.cat-card:hover {
+  border-color: var(--orange);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.cat-icon {
+  font-size: 32px;
+  width: 54px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.cat-property .cat-icon { background: #FFF3EE; }
+.cat-motors .cat-icon { background: #EEF3FF; }
+.cat-jobs .cat-icon { background: #EEFFF6; }
+.cat-electronics .cat-icon { background: #F3EEFF; }
+.cat-furniture .cat-icon { background: #FFF9EE; }
+.cat-fashion .cat-icon { background: #FFEEF6; }
+.cat-pets .cat-icon { background: #EEFFF9; }
+.cat-services .cat-icon { background: #F0F4FF; }
+
+.cat-info { display: flex; flex-direction: column; }
+.cat-name { font-weight: 600; color: var(--dark); font-size: 15px; }
+.cat-count { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* ── LISTINGS ── */
+.listings-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.listing-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: all .25s;
+  cursor: pointer;
+}
+.listing-card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-3px);
+}
+
+.listing-img {
+  height: 180px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  padding: 12px;
+  gap: 6px;
+}
+
+.car-img { height: 160px; }
+
+.badge {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-featured { background: var(--orange); color: var(--white); }
+.badge-type { background: rgba(255,255,255,.9); color: var(--dark); }
+
+.listing-body { padding: 16px; }
+
+.listing-price {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--orange);
+  margin-bottom: 6px;
+}
+.listing-price span { font-size: 13px; font-weight: 400; color: var(--muted); }
+
+.listing-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--dark);
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.listing-loc {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.listing-specs {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+/* ── JOBS ── */
+.jobs-list { display: flex; flex-direction: column; gap: 12px; }
+
+.job-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  transition: all .2s;
+}
+.job-card:hover {
+  border-color: var(--orange);
+  box-shadow: var(--shadow);
+  transform: translateX(4px);
+}
+
+.job-logo {
+  font-size: 28px;
+  width: 50px;
+  height: 50px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.job-info { flex: 1; }
+.job-info h4 { font-size: 15px; font-weight: 600; color: var(--dark); }
+.job-info p { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+.job-meta { text-align: right; }
+.job-salary {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--green);
+}
+.job-age {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 3px;
+  display: block;
+}
+
+/* ── APP BANNER ── */
+.app-banner {
+  background: linear-gradient(135deg, var(--dark) 0%, var(--dark-2) 100%);
+  overflow: hidden;
+  position: relative;
+}
+
+.app-banner::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  left: -80px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255,87,34,.12) 0%, transparent 70%);
+}
+
+.app-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 60px;
+}
+
+.app-text { color: var(--white); max-width: 480px; }
+.app-text h2 { font-size: 32px; font-weight: 800; margin-bottom: 14px; }
+.app-text p { color: rgba(255,255,255,.7); font-size: 16px; line-height: 1.7; margin-bottom: 28px; }
+
+.app-btns { display: flex; gap: 14px; }
+
+.app-store-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,.1);
+  border: 1.5px solid rgba(255,255,255,.2);
+  border-radius: var(--radius);
+  padding: 12px 20px;
+  color: var(--white);
+  transition: all .2s;
+}
+.app-store-btn:hover {
+  background: rgba(255,255,255,.18);
+  border-color: rgba(255,255,255,.4);
+}
+.app-store-btn small { display: block; font-size: 11px; opacity: .7; }
+.app-store-btn strong { display: block; font-size: 15px; }
+
+/* Phone Mockup */
+.app-mockup { flex-shrink: 0; }
+
+.phone-mock {
+  width: 200px;
+  height: 360px;
+  background: rgba(255,255,255,.08);
+  border: 2px solid rgba(255,255,255,.15);
+  border-radius: 30px;
+  padding: 16px;
+  position: relative;
+}
+.phone-mock::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 5px;
+  background: rgba(255,255,255,.2);
+  border-radius: 3px;
+}
+
+.phone-screen { padding-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+
+.mock-bar {
+  height: 10px;
+  background: rgba(255,255,255,.15);
+  border-radius: 5px;
+  margin-bottom: 6px;
+}
+
+.mock-card {
+  height: 80px;
+  background: rgba(255,255,255,.08);
+  border-radius: 10px;
+}
+.mock-card.small {
+  height: 50px;
+  background: rgba(255,87,34,.15);
+}
+
+/* ── FOOTER ── */
+.footer {
+  background: var(--dark);
+  color: rgba(255,255,255,.7);
+}
+
+.footer-inner {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px;
+  padding: 60px 24px 40px;
+}
+
+.footer-logo { margin-bottom: 12px; display: inline-block; }
+.footer-brand p { font-size: 14px; line-height: 1.7; margin-bottom: 20px; max-width: 240px; }
+
+.social-links { display: flex; gap: 10px; }
+.social-btn {
+  width: 36px;
+  height: 36px;
+  background: rgba(255,255,255,.08);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all .2s;
+  color: rgba(255,255,255,.7);
+}
+.social-btn:hover { background: var(--orange); color: var(--white); }
+
+.footer-col h5 {
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+
+.footer-col ul { display: flex; flex-direction: column; gap: 10px; }
+.footer-col a {
+  font-size: 14px;
+  color: rgba(255,255,255,.55);
+  transition: color .2s;
+}
+.footer-col a:hover { color: var(--white); }
+
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.footer-bottom-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  font-size: 13px;
+  color: rgba(255,255,255,.4);
+}
+
+.footer-legal { display: flex; gap: 20px; }
+.footer-legal a { color: rgba(255,255,255,.4); transition: color .2s; }
+.footer-legal a:hover { color: rgba(255,255,255,.8); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .cat-grid { grid-template-columns: repeat(4, 1fr); }
+  .listings-grid { grid-template-columns: repeat(2, 1fr); }
+  .footer-inner { grid-template-columns: 1fr 1fr; gap: 32px; }
+}
+
+@media (max-width: 768px) {
+  .topbar { display: none; }
+  .nav-categories { display: none; }
+  .nav-inner { gap: 16px; }
+  .hero { padding: 60px 0 70px; }
+  .hero-title { font-size: 30px; }
+  .search-row { flex-wrap: wrap; }
+  .location-field { display: none; }
+  .search-divider { display: none; }
+  .search-btn { width: calc(100% - 8px); margin: 0 4px 4px; padding: 12px; }
+  .hero-stats { gap: 20px; }
+  .stat strong { font-size: 18px; }
+  .cat-grid { grid-template-columns: repeat(2, 1fr); }
+  .listings-grid { grid-template-columns: 1fr; }
+  .app-inner { flex-direction: column; text-align: center; }
+  .app-btns { justify-content: center; }
+  .app-mockup { display: none; }
+  .footer-inner { grid-template-columns: 1fr 1fr; }
+  .footer-brand { grid-column: 1 / -1; }
+  .footer-bottom-inner { flex-direction: column; gap: 12px; text-align: center; }
+  .job-meta { display: none; }
+}
+
+@media (max-width: 480px) {
+  .cat-grid { grid-template-columns: repeat(2, 1fr); }
+  .hero-stats { flex-direction: column; gap: 12px; }
+  .stat-divider { width: 40px; height: 1px; }
+  .footer-inner { grid-template-columns: 1fr; }
+  .nav-actions .btn-ghost { display: none; }
+}
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <span>🇦🇪 Dubai, UAE</span>
+      <div class="topbar-links">
+        <a href="#">Help</a>
+        <a href="#">Business Listings</a>
+        <a href="#">Mobile App</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="#" class="logo">
+        <span class="logo-dubi">dubi</span><span class="logo-zzle">zzle</span>
+      </a>
+      <nav class="nav-categories">
+        <a href="#" class="nav-link active">Property</a>
+        <a href="#" class="nav-link">Motors</a>
+        <a href="#" class="nav-link">Jobs</a>
+        <a href="#" class="nav-link">Community</a>
+        <a href="#" class="nav-link">Businesses</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="btn-ghost">Log in</button>
+        <button class="btn-primary">Post an Ad</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-inner">
+      <h1 class="hero-title">Find Anything in Dubai</h1>
+      <p class="hero-sub">Properties, Cars, Jobs & More — All in One Place</p>
+
+      <div class="search-box">
+        <div class="search-tabs">
+          <button class="stab active" data-tab="all">All</button>
+          <button class="stab" data-tab="property">Property</button>
+          <button class="stab" data-tab="motors">Motors</button>
+          <button class="stab" data-tab="jobs">Jobs</button>
+        </div>
+        <div class="search-row">
+          <div class="search-field">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" placeholder="What are you looking for?" />
+          </div>
+          <div class="search-divider"></div>
+          <div class="search-field location-field">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <input type="text" placeholder="Location" value="Dubai" />
+          </div>
+          <button class="search-btn">Search</button>
+        </div>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat"><strong>2.4M+</strong><span>Listings</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><strong>800K+</strong><span>Monthly Users</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><strong>15+</strong><span>Years Trusted</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section class="categories section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Browse Categories</h2>
+        <a href="#" class="see-all">See all →</a>
+      </div>
+      <div class="cat-grid">
+        <a href="#" class="cat-card cat-property">
+          <div class="cat-icon">🏠</div>
+          <div class="cat-info">
+            <span class="cat-name">Property</span>
+            <span class="cat-count">420,000+ listings</span>
+          </div>
+        </a>
+        <a href="#" class="cat-card cat-motors">
+          <div class="cat-icon">🚗</div>
+          <div class="cat-info">
+            <span class="cat-name">Motors</span>
+            <span class="cat-count">85,000+ listings</span>
+          </div>
+        </a>
+        <a href="#" class="cat-card cat-jobs">
+          <div class="cat-icon">💼</div>
+          <div class="cat-info">
+            <span class="cat-name">Jobs</span>
+            <span class="cat-count">52,000+ listings</span>
+          </div>
+        </a>
+        <a href="#" class="cat-card cat-electronics">
+          <div class="cat-icon">📱</div>
+          <div class="cat-info">
+            <span class="cat-name">Electronics</span>
+            <span class="cat-count">130,000+ listings</span>
+          </div>
+        </a>
+        <a href="#" class="cat-card cat-furniture">
+          <div class="cat-icon">🛋️</div>
+          <div class="cat-info">
+            <span class="cat-name">Furniture</span>
+            <span class="cat-count">67,000+ listings</span>
+          </div>
+        </a>
+        <a href="#" class="cat-card cat-fashion">
+          <div class="cat-icon">👗</div>
+          <div class="cat-info">
+            <span class="cat-name">Fashion</span>
+            <span class="cat-count">94,000+ listings</span>
+          </div>
+        </a>
+        <a href="#" class="cat-card cat-pets">
+          <div class="cat-icon">🐾</div>
+          <div class="cat-info">
+            <span class="cat-name">Pets</span>
+            <span class="cat-count">12,000+ listings</span>
+          </div>
+        </a>
+        <a href="#" class="cat-card cat-services">
+          <div class="cat-icon">🔧</div>
+          <div class="cat-info">
+            <span class="cat-name">Services</span>
+            <span class="cat-count">38,000+ listings</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED PROPERTY -->
+  <section class="featured section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Featured Properties</h2>
+        <a href="#" class="see-all">See all →</a>
+      </div>
+      <div class="listings-grid">
+        <div class="listing-card">
+          <div class="listing-img" style="background: linear-gradient(135deg,#1a6b5c,#2d9e85);">
+            <span class="badge badge-featured">Featured</span>
+            <span class="badge badge-type">Apartment</span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-price">AED 95,000 <span>/year</span></div>
+            <h3 class="listing-title">Luxury 2BR in Downtown Dubai</h3>
+            <p class="listing-loc">📍 Downtown Dubai, Dubai</p>
+            <div class="listing-specs">
+              <span>🛏 2 Beds</span>
+              <span>🚿 2 Baths</span>
+              <span>📐 1,250 sqft</span>
+            </div>
+          </div>
+        </div>
+        <div class="listing-card">
+          <div class="listing-img" style="background: linear-gradient(135deg,#1a3a6b,#2d6fe0);">
+            <span class="badge badge-type">Villa</span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-price">AED 280,000 <span>/year</span></div>
+            <h3 class="listing-title">5BR Villa with Private Pool</h3>
+            <p class="listing-loc">📍 Palm Jumeirah, Dubai</p>
+            <div class="listing-specs">
+              <span>🛏 5 Beds</span>
+              <span>🚿 6 Baths</span>
+              <span>📐 6,800 sqft</span>
+            </div>
+          </div>
+        </div>
+        <div class="listing-card">
+          <div class="listing-img" style="background: linear-gradient(135deg,#6b1a3a,#e02d6f);">
+            <span class="badge badge-featured">Featured</span>
+            <span class="badge badge-type">Studio</span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-price">AED 45,000 <span>/year</span></div>
+            <h3 class="listing-title">Modern Studio in Marina</h3>
+            <p class="listing-loc">📍 Dubai Marina, Dubai</p>
+            <div class="listing-specs">
+              <span>🛏 Studio</span>
+              <span>🚿 1 Bath</span>
+              <span>📐 520 sqft</span>
+            </div>
+          </div>
+        </div>
+        <div class="listing-card">
+          <div class="listing-img" style="background: linear-gradient(135deg,#3a6b1a,#6be02d);">
+            <span class="badge badge-type">Penthouse</span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-price">AED 550,000 <span>/year</span></div>
+            <h3 class="listing-title">Sky Penthouse — Burj Views</h3>
+            <p class="listing-loc">📍 Business Bay, Dubai</p>
+            <div class="listing-specs">
+              <span>🛏 4 Beds</span>
+              <span>🚿 5 Baths</span>
+              <span>📐 5,200 sqft</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED CARS -->
+  <section class="featured section bg-light">
+    <div class="container">
+      <div class="section-header">
+        <h2>Featured Motors</h2>
+        <a href="#" class="see-all">See all →</a>
+      </div>
+      <div class="listings-grid">
+        <div class="listing-card">
+          <div class="listing-img car-img" style="background: linear-gradient(135deg,#111,#333);">
+            <span class="badge badge-type">Used</span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-price">AED 185,000</div>
+            <h3 class="listing-title">2022 BMW 5 Series 530i</h3>
+            <p class="listing-loc">📍 Al Quoz, Dubai</p>
+            <div class="listing-specs">
+              <span>📅 2022</span>
+              <span>⚡ 42,000 km</span>
+              <span>⛽ Petrol</span>
+            </div>
+          </div>
+        </div>
+        <div class="listing-card">
+          <div class="listing-img car-img" style="background: linear-gradient(135deg,#8B0000,#cc2200);">
+            <span class="badge badge-featured">Featured</span>
+            <span class="badge badge-type">Used</span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-price">AED 320,000</div>
+            <h3 class="listing-title">2023 Mercedes GLE 450</h3>
+            <p class="listing-loc">📍 Deira, Dubai</p>
+            <div class="listing-specs">
+              <span>📅 2023</span>
+              <span>⚡ 18,000 km</span>
+              <span>⛽ Hybrid</span>
+            </div>
+          </div>
+        </div>
+        <div class="listing-card">
+          <div class="listing-img car-img" style="background: linear-gradient(135deg,#004080,#0066cc);">
+            <span class="badge badge-type">New</span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-price">AED 420,000</div>
+            <h3 class="listing-title">2024 Range Rover Sport HSE</h3>
+            <p class="listing-loc">📍 Sheikh Zayed Rd, Dubai</p>
+            <div class="listing-specs">
+              <span>📅 2024</span>
+              <span>⚡ 0 km</span>
+              <span>⛽ Petrol</span>
+            </div>
+          </div>
+        </div>
+        <div class="listing-card">
+          <div class="listing-img car-img" style="background: linear-gradient(135deg,#1a1a1a,#555);">
+            <span class="badge badge-type">Used</span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-price">AED 95,000</div>
+            <h3 class="listing-title">2021 Toyota Camry 2.5L</h3>
+            <p class="listing-loc">📍 Jumeirah, Dubai</p>
+            <div class="listing-specs">
+              <span>📅 2021</span>
+              <span>⚡ 61,000 km</span>
+              <span>⛽ Petrol</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOBS STRIP -->
+  <section class="jobs-strip section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Latest Jobs</h2>
+        <a href="#" class="see-all">See all →</a>
+      </div>
+      <div class="jobs-list">
+        <a href="#" class="job-card">
+          <div class="job-logo">🏢</div>
+          <div class="job-info">
+            <h4>Senior Software Engineer</h4>
+            <p>Careem · Dubai · Full-time</p>
+          </div>
+          <div class="job-meta">
+            <span class="job-salary">AED 25,000/mo</span>
+            <span class="job-age">2h ago</span>
+          </div>
+        </a>
+        <a href="#" class="job-card">
+          <div class="job-logo">🏦</div>
+          <div class="job-info">
+            <h4>Financial Analyst</h4>
+            <p>Emirates NBD · DIFC · Full-time</p>
+          </div>
+          <div class="job-meta">
+            <span class="job-salary">AED 18,000/mo</span>
+            <span class="job-age">5h ago</span>
+          </div>
+        </a>
+        <a href="#" class="job-card">
+          <div class="job-logo">✈️</div>
+          <div class="job-info">
+            <h4>Operations Manager</h4>
+            <p>Emirates Group · Airport Free Zone · Full-time</p>
+          </div>
+          <div class="job-meta">
+            <span class="job-salary">AED 22,000/mo</span>
+            <span class="job-age">1d ago</span>
+          </div>
+        </a>
+        <a href="#" class="job-card">
+          <div class="job-logo">🛒</div>
+          <div class="job-info">
+            <h4>Marketing Manager</h4>
+            <p>Noon · Business Bay · Full-time</p>
+          </div>
+          <div class="job-meta">
+            <span class="job-salary">AED 20,000/mo</span>
+            <span class="job-age">2d ago</span>
+          </div>
+        </a>
+        <a href="#" class="job-card">
+          <div class="job-logo">🏥</div>
+          <div class="job-info">
+            <h4>Registered Nurse</h4>
+            <p>Mediclinic · JLT · Full-time</p>
+          </div>
+          <div class="job-meta">
+            <span class="job-salary">AED 12,000/mo</span>
+            <span class="job-age">3d ago</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- APP BANNER -->
+  <section class="app-banner section">
+    <div class="container app-inner">
+      <div class="app-text">
+        <h2>Get the App</h2>
+        <p>Browse millions of listings on the go. Post ads in seconds, chat with sellers, and never miss a deal.</p>
+        <div class="app-btns">
+          <a href="#" class="app-store-btn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            <div><small>Download on the</small><strong>App Store</strong></div>
+          </a>
+          <a href="#" class="app-store-btn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.3.17.64.24.99.2l11.53-11.53L12.36 9.1 3.18 23.76zm16.52-10.67L17 11.63 13.7 8.33l2.74-4.76c.3-.52.12-1.19-.4-1.49-.51-.3-1.18-.12-1.49.4L12.36 7.24 10.17 4.5c-.32-.42-.91-.48-1.33-.16-.42.32-.48.91-.16 1.33l2.35 3.04L3.51 2.23C3.22 2.08 2.86 2.1 2.59 2.29a1.007 1.007 0 0 0-.41.82v17.78c0 .33.16.63.41.82.16.11.34.17.53.17.16 0 .31-.04.46-.12l.7-.4L7 18.53l3.27 3.27-2.74 4.75c-.3.52-.12 1.19.4 1.49.17.1.36.15.55.15.38 0 .74-.2.94-.55l2.19-3.8 2.09 2.72c.19.24.47.38.77.38.19 0 .39-.06.55-.18.42-.32.48-.91.16-1.33l-2.35-3.04 7.52 6.48c.19.16.43.24.67.24.19 0 .37-.05.54-.15.27-.16.44-.46.44-.78V14.57c.01-.34-.17-.65-.44-.82l-.3-.17z"/></svg>
+            <div><small>Get it on</small><strong>Google Play</strong></div>
+          </a>
+        </div>
+      </div>
+      <div class="app-mockup">
+        <div class="phone-mock">
+          <div class="phone-screen">
+            <div class="mock-bar"></div>
+            <div class="mock-card"></div>
+            <div class="mock-card small"></div>
+            <div class="mock-card small"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <a href="#" class="logo footer-logo">
+          <span class="logo-dubi">dubi</span><span class="logo-zzle">zzle</span>
+        </a>
+        <p>The UAE's largest classifieds platform. Buy, sell, and find everything you need.</p>
+        <div class="social-links">
+          <a href="#" class="social-btn">f</a>
+          <a href="#" class="social-btn">in</a>
+          <a href="#" class="social-btn">tw</a>
+          <a href="#" class="social-btn">yt</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Categories</h5>
+        <ul>
+          <li><a href="#">Property</a></li>
+          <li><a href="#">Motors</a></li>
+          <li><a href="#">Jobs</a></li>
+          <li><a href="#">Electronics</a></li>
+          <li><a href="#">Furniture</a></li>
+          <li><a href="#">Pets</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Advertising</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Support</h5>
+        <ul>
+          <li><a href="#">Help Center</a></li>
+          <li><a href="#">Contact Us</a></li>
+          <li><a href="#">Safety Tips</a></li>
+          <li><a href="#">Fraud Alerts</a></li>
+          <li><a href="#">Report a Listing</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container footer-bottom-inner">
+        <span>© 2025 Dubizzle. All rights reserved.</span>
+        <div class="footer-legal">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Use</a>
+          <a href="#">Cookie Policy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+// Search tab switching
+document.querySelectorAll('.stab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const placeholders = {
+      all: 'What are you looking for?',
+      property: 'Apartment, villa, studio...',
+      motors: 'Car make, model, year...',
+      jobs: 'Job title, company, keyword...',
+    };
+    const input = document.querySelector('.search-field input');
+    if (input) input.placeholder = placeholders[tab.dataset.tab] || placeholders.all;
+  });
+});
+
+// Nav category active state
+document.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+  });
+});
+
+// Search button
+document.querySelector('.search-btn').addEventListener('click', () => {
+  const query = document.querySelector('.search-field input').value.trim();
+  if (query) console.log('Searching for:', query);
+});
+
+// Enter key in search
+document.querySelector('.search-field input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.querySelector('.search-btn').click();
+});
+
+// Scroll fade-in
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.listing-card, .cat-card, .job-card').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(16px)';
+  el.style.transition = 'opacity .4s ease, transform .4s ease';
+  observer.observe(el);
+});
+  </script>
+</body>
+</html>
