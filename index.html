@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dubizzle — Buy, Sell & Find in Dubai</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <span>🇦🇪 Dubai, UAE</span>
+      <div class="topbar-links">
+        <a href="#">Help</a>
+        <a href="#">Business Listings</a>
+        <a href="#">Mobile App</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="#" class="logo">
+        <span class="logo-dubi">dubi</span><span class="logo-zzle">zzle</span>
+      </a>
+
+      <nav class="nav-categories">
+        <a href="#" class="nav-link active">Property</a>
+        <a href="#" class="nav-link">Motors</a>
+        <a href="#" class="nav-link">Jobs</a>
+        <a href="#" class="nav-link">Community</a>
+        <a href="#" class="nav-link">Businesses</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn-ghost">Log in</button>
+        <button class="btn-primary">Post an Ad</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-inner">
+      <h1 class="hero-title">Find Anything in Dubai</h1>
+      <p class="hero-sub">Properties, Cars, Jobs & More — All in One Place</p>
+
+      <div class="search-box">
+        <div class="search-tabs">
+          <button class="stab active" data-tab="all">All</button>
+          <button class="stab" data-tab="property">Property</button>
+          <button class="stab" data-tab="motors">Motors</button>
+          <button class="stab" data-tab="jobs">Jobs</button>
+        </div>
+        <div class="search-row">
+          <div class="search-field">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" placeholder="What are you looking for?" />
+          </div>
+          <div class="search-divider"></div>
+          <div class="search-field location-field">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <input type="text" placeholder="Location" value="Dubai" />
+          </div>
+          <button class="search-btn">Search</button>
+        </div>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat"><strong>2.4M+</strong><span>Listings</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><strong>800K+</strong><span>Monthly Users</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><strong>15+</strong><span>Years Trusted</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section class="categories section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Browse Categories</h2>
+        <a href="#" class="see-all">See all →</a>
+      </div>
+      <div class="cat-grid">
+        <a href="#" class="cat-card cat-property">
+          <div class="cat-icon">🏠</div>
+          <div class="cat-info">
+            <span class="cat-name">Property</span>
+            <span class="cat-count">420,000+ listings</span>
+          </div>
+        </a>
+        <a href="#" class="cat-card cat-motors">
+          <div class="cat-icon">🚗</div>
+          <div class="cat-info">
+            <span class="cat-name">Motors</span>
+            <span class="cat-count">85,000+ listings</span>
+          </div>
+        </a>
+        <a href="#" class="cat-card cat-jobs">
+          <div class="cat-icon">💼</div>
+          <div class="cat-info">
+            <span class="cat-name">Jobs</span>
+            <span class="cat-count">52,000+ listings</span>
+          </div>
+        </a>
+        <a href="#" class="cat-card cat-electronics">
+          <div class="cat-icon">📱</div>
+          <div class="cat-info">
+            <span class="cat-name">Electronics</span>
+            <span class="cat-count">130,000+ listings</span>
+          </div>
+        </a>
+        <a href="#" class="cat-card cat-furniture">
+          <div class="cat-icon">🛋️</div>
+          <div class="cat-info">
+            <span class="cat-name">Furniture</span>
+            <span class="cat-count">67,000+ listings</span>
+          </div>
+        </a>
+        <a href="#" class="cat-card cat-fashion">
+          <div class="cat-icon">👗</div>
+          <div class="cat-info">
+            <span class="cat-name">Fashion</span>
+            <span class="cat-count">94,000+ listings</span>
+          </div>
+        </a>
+        <a href="#" class="cat-card cat-pets">
+          <div class="cat-icon">🐾</div>
+          <div class="cat-info">
+            <span class="cat-name">Pets</span>
+            <span class="cat-count">12,000+ listings</span>
+          </div>
+        </a>
+        <a href="#" class="cat-card cat-services">
+          <div class="cat-icon">🔧</div>
+          <div class="cat-info">
+            <span class="cat-name">Services</span>
+            <span class="cat-count">38,000+ listings</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED PROPERTY -->
+  <section class="featured section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Featured Properties</h2>
+        <a href="#" class="see-all">See all →</a>
+      </div>
+      <div class="listings-grid">
+        <div class="listing-card">
+          <div class="listing-img" style="background: linear-gradient(135deg,#1a6b5c,#2d9e85);">
+            <span class="badge badge-featured">Featured</span>
+            <span class="badge badge-type">Apartment</span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-price">AED 95,000 <span>/year</span></div>
+            <h3 class="listing-title">Luxury 2BR in Downtown Dubai</h3>
+            <p class="listing-loc">📍 Downtown Dubai, Dubai</p>
+            <div class="listing-specs">
+              <span>🛏 2 Beds</span>
+              <span>🚿 2 Baths</span>
+              <span>📐 1,250 sqft</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="listing-card">
+          <div class="listing-img" style="background: linear-gradient(135deg,#1a3a6b,#2d6fe0);">
+            <span class="badge badge-type">Villa</span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-price">AED 280,000 <span>/year</span></div>
+            <h3 class="listing-title">5BR Villa with Private Pool</h3>
+            <p class="listing-loc">📍 Palm Jumeirah, Dubai</p>
+            <div class="listing-specs">
+              <span>🛏 5 Beds</span>
+              <span>🚿 6 Baths</span>
+              <span>📐 6,800 sqft</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="listing-card">
+          <div class="listing-img" style="background: linear-gradient(135deg,#6b1a3a,#e02d6f);">
+            <span class="badge badge-featured">Featured</span>
+            <span class="badge badge-type">Studio</span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-price">AED 45,000 <span>/year</span></div>
+            <h3 class="listing-title">Modern Studio in Marina</h3>
+            <p class="listing-loc">📍 Dubai Marina, Dubai</p>
+            <div class="listing-specs">
+              <span>🛏 Studio</span>
+              <span>🚿 1 Bath</span>
+              <span>📐 520 sqft</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="listing-card">
+          <div class="listing-img" style="background: linear-gradient(135deg,#3a6b1a,#6be02d);">
+            <span class="badge badge-type">Penthouse</span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-price">AED 550,000 <span>/year</span></div>
+            <h3 class="listing-title">Sky Penthouse — Burj Views</h3>
+            <p class="listing-loc">📍 Business Bay, Dubai</p>
+            <div class="listing-specs">
+              <span>🛏 4 Beds</span>
+              <span>🚿 5 Baths</span>
+              <span>📐 5,200 sqft</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED CARS -->
+  <section class="featured section bg-light">
+    <div class="container">
+      <div class="section-header">
+        <h2>Featured Motors</h2>
+        <a href="#" class="see-all">See all →</a>
+      </div>
+      <div class="listings-grid">
+        <div class="listing-card">
+          <div class="listing-img car-img" style="background: linear-gradient(135deg,#111,#333);">
+            <span class="badge badge-type">Used</span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-price">AED 185,000</div>
+            <h3 class="listing-title">2022 BMW 5 Series 530i</h3>
+            <p class="listing-loc">📍 Al Quoz, Dubai</p>
+            <div class="listing-specs">
+              <span>📅 2022</span>
+              <span>⚡ 42,000 km</span>
+              <span>⛽ Petrol</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="listing-card">
+          <div class="listing-img car-img" style="background: linear-gradient(135deg,#8B0000,#cc2200);">
+            <span class="badge badge-featured">Featured</span>
+            <span class="badge badge-type">Used</span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-price">AED 320,000</div>
+            <h3 class="listing-title">2023 Mercedes GLE 450</h3>
+            <p class="listing-loc">📍 Deira, Dubai</p>
+            <div class="listing-specs">
+              <span>📅 2023</span>
+              <span>⚡ 18,000 km</span>
+              <span>⛽ Hybrid</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="listing-card">
+          <div class="listing-img car-img" style="background: linear-gradient(135deg,#004080,#0066cc);">
+            <span class="badge badge-type">New</span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-price">AED 420,000</div>
+            <h3 class="listing-title">2024 Range Rover Sport HSE</h3>
+            <p class="listing-loc">📍 Sheikh Zayed Rd, Dubai</p>
+            <div class="listing-specs">
+              <span>📅 2024</span>
+              <span>⚡ 0 km</span>
+              <span>⛽ Petrol</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="listing-card">
+          <div class="listing-img car-img" style="background: linear-gradient(135deg,#1a1a1a,#555);">
+            <span class="badge badge-type">Used</span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-price">AED 95,000</div>
+            <h3 class="listing-title">2021 Toyota Camry 2.5L</h3>
+            <p class="listing-loc">📍 Jumeirah, Dubai</p>
+            <div class="listing-specs">
+              <span>📅 2021</span>
+              <span>⚡ 61,000 km</span>
+              <span>⛽ Petrol</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOBS STRIP -->
+  <section class="jobs-strip section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Latest Jobs</h2>
+        <a href="#" class="see-all">See all →</a>
+      </div>
+      <div class="jobs-list">
+        <a href="#" class="job-card">
+          <div class="job-logo">🏢</div>
+          <div class="job-info">
+            <h4>Senior Software Engineer</h4>
+            <p>Careem · Dubai · Full-time</p>
+          </div>
+          <div class="job-meta">
+            <span class="job-salary">AED 25,000/mo</span>
+            <span class="job-age">2h ago</span>
+          </div>
+        </a>
+        <a href="#" class="job-card">
+          <div class="job-logo">🏦</div>
+          <div class="job-info">
+            <h4>Financial Analyst</h4>
+            <p>Emirates NBD · DIFC · Full-time</p>
+          </div>
+          <div class="job-meta">
+            <span class="job-salary">AED 18,000/mo</span>
+            <span class="job-age">5h ago</span>
+          </div>
+        </a>
+        <a href="#" class="job-card">
+          <div class="job-logo">✈️</div>
+          <div class="job-info">
+            <h4>Operations Manager</h4>
+            <p>Emirates Group · Airport Free Zone · Full-time</p>
+          </div>
+          <div class="job-meta">
+            <span class="job-salary">AED 22,000/mo</span>
+            <span class="job-age">1d ago</span>
+          </div>
+        </a>
+        <a href="#" class="job-card">
+          <div class="job-logo">🛒</div>
+          <div class="job-info">
+            <h4>Marketing Manager</h4>
+            <p>Noon · Business Bay · Full-time</p>
+          </div>
+          <div class="job-meta">
+            <span class="job-salary">AED 20,000/mo</span>
+            <span class="job-age">2d ago</span>
+          </div>
+        </a>
+        <a href="#" class="job-card">
+          <div class="job-logo">🏥</div>
+          <div class="job-info">
+            <h4>Registered Nurse</h4>
+            <p>Mediclinic · JLT · Full-time</p>
+          </div>
+          <div class="job-meta">
+            <span class="job-salary">AED 12,000/mo</span>
+            <span class="job-age">3d ago</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- APP BANNER -->
+  <section class="app-banner section">
+    <div class="container app-inner">
+      <div class="app-text">
+        <h2>Get the App</h2>
+        <p>Browse millions of listings on the go. Post ads in seconds, chat with sellers, and never miss a deal.</p>
+        <div class="app-btns">
+          <a href="#" class="app-store-btn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            <div><small>Download on the</small><strong>App Store</strong></div>
+          </a>
+          <a href="#" class="app-store-btn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.3.17.64.24.99.2l11.53-11.53L12.36 9.1 3.18 23.76zm16.52-10.67L17 11.63 13.7 8.33l2.74-4.76c.3-.52.12-1.19-.4-1.49-.51-.3-1.18-.12-1.49.4L12.36 7.24 10.17 4.5c-.32-.42-.91-.48-1.33-.16-.42.32-.48.91-.16 1.33l2.35 3.04L3.51 2.23C3.22 2.08 2.86 2.1 2.59 2.29a1.007 1.007 0 0 0-.41.82v17.78c0 .33.16.63.41.82.16.11.34.17.53.17.16 0 .31-.04.46-.12l.7-.4L7 18.53l3.27 3.27-2.74 4.75c-.3.52-.12 1.19.4 1.49.17.1.36.15.55.15.38 0 .74-.2.94-.55l2.19-3.8 2.09 2.72c.19.24.47.38.77.38.19 0 .39-.06.55-.18.42-.32.48-.91.16-1.33l-2.35-3.04 7.52 6.48c.19.16.43.24.67.24.19 0 .37-.05.54-.15.27-.16.44-.46.44-.78V14.57c.01-.34-.17-.65-.44-.82l-.3-.17z"/></svg>
+            <div><small>Get it on</small><strong>Google Play</strong></div>
+          </a>
+        </div>
+      </div>
+      <div class="app-mockup">
+        <div class="phone-mock">
+          <div class="phone-screen">
+            <div class="mock-bar"></div>
+            <div class="mock-card"></div>
+            <div class="mock-card small"></div>
+            <div class="mock-card small"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <a href="#" class="logo footer-logo">
+          <span class="logo-dubi">dubi</span><span class="logo-zzle">zzle</span>
+        </a>
+        <p>The UAE's largest classifieds platform. Buy, sell, and find everything you need.</p>
+        <div class="social-links">
+          <a href="#" class="social-btn">f</a>
+          <a href="#" class="social-btn">in</a>
+          <a href="#" class="social-btn">tw</a>
+          <a href="#" class="social-btn">yt</a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h5>Categories</h5>
+        <ul>
+          <li><a href="#">Property</a></li>
+          <li><a href="#">Motors</a></li>
+          <li><a href="#">Jobs</a></li>
+          <li><a href="#">Electronics</a></li>
+          <li><a href="#">Furniture</a></li>
+          <li><a href="#">Pets</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Advertising</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5>Support</h5>
+        <ul>
+          <li><a href="#">Help Center</a></li>
+          <li><a href="#">Contact Us</a></li>
+          <li><a href="#">Safety Tips</a></li>
+          <li><a href="#">Fraud Alerts</a></li>
+          <li><a href="#">Report a Listing</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container footer-bottom-inner">
+        <span>© 2025 Dubizzle. All rights reserved.</span>
+        <div class="footer-legal">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Use</a>
+          <a href="#">Cookie Policy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
