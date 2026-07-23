@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sounding Rocket — Vertical Static Test Fixture (3D CAD)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --grid: #143a52;
+      --accent: #38bdf8;
+      --accent2: #7dd3fc;
+      --ink: #cfe8f5;
+    }
+    body {
+      background:
+        radial-gradient(circle at 50% 20%, #0f2c40 0%, #081824 55%, #04101a 100%);
+      overflow: hidden;
+      font-family: 'SFMono-Regular', ui-monospace, 'Roboto Mono', Menlo, monospace;
+      color: var(--ink);
+    }
+    #canvas-container { width: 100vw; height: 100vh; }
+
+    /* ---- CAD blueprint frame overlay ---- */
+    #frame {
+      position: fixed; inset: 16px; pointer-events: none; z-index: 50;
+      border: 1px solid rgba(56,189,248,0.35);
+    }
+    #frame::before, #frame::after {
+      content: ''; position: absolute; border: 1px solid rgba(56,189,248,0.25);
+    }
+    #frame::before { inset: 6px; }
+    .corner {
+      position: fixed; width: 22px; height: 22px; z-index: 51; pointer-events: none;
+      border-color: var(--accent);
+    }
+    .corner.tl { top: 16px; left: 16px; border-top: 2px solid; border-left: 2px solid; }
+    .corner.tr { top: 16px; right: 16px; border-top: 2px solid; border-right: 2px solid; }
+    .corner.bl { bottom: 16px; left: 16px; border-bottom: 2px solid; border-left: 2px solid; }
+    .corner.br { bottom: 16px; right: 16px; border-bottom: 2px solid; border-right: 2px solid; }
+
+    /* ---- Title block (bottom-right, like a real drawing) ---- */
+    #titleblock {
+      position: fixed; right: 30px; bottom: 30px; z-index: 60;
+      background: rgba(6,22,34,0.72);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(56,189,248,0.45);
+      font-size: 10.5px; line-height: 1.5; letter-spacing: 0.4px;
+      min-width: 300px;
+    }
+    #titleblock .row { display: flex; border-bottom: 1px solid rgba(56,189,248,0.22); }
+    #titleblock .row:last-child { border-bottom: none; }
+    #titleblock .cell { padding: 5px 9px; border-right: 1px solid rgba(56,189,248,0.22); }
+    #titleblock .cell:last-child { border-right: none; }
+    #titleblock .k { color: #6ea6c4; font-size: 8.5px; text-transform: uppercase; letter-spacing: 1px; }
+    #titleblock .v { color: #eaf6ff; font-weight: 600; }
+    #titleblock .big { font-size: 12px; color: var(--accent2); }
+
+    /* ---- Header ---- */
+    #header { position: fixed; top: 30px; left: 34px; z-index: 60; }
+    #header h1 { font-size: 15px; font-weight: 700; letter-spacing: 2px; color: #eaf6ff; }
+    #header p { font-size: 10px; color: var(--accent2); letter-spacing: 2px; margin-top: 3px; }
+    #header .tag {
+      display:inline-block; margin-top: 8px; font-size: 9px; letter-spacing: 1.5px;
+      color: #ffd27d; border: 1px solid rgba(255,210,125,0.5); padding: 3px 8px;
+    }
+
+    /* ---- Control dock ---- */
+    #ui {
+      position: fixed; bottom: 30px; left: 30px; z-index: 60;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .btnrow { display: flex; gap: 8px; }
+    #ui button {
+      background: rgba(9,30,45,0.7);
+      border: 1px solid rgba(56,189,248,0.4);
+      color: var(--ink);
+      padding: 7px 13px; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    #ui button:hover { background: rgba(56,189,248,0.18); border-color: var(--accent); color:#fff; }
+    #ui button.active { background: var(--accent); border-color: var(--accent); color: #04121c; font-weight: 700; }
+
+    #hint { position: fixed; top: 32px; right: 34px; z-index: 60; text-align:right;
+      font-size: 10px; color: rgba(207,232,245,0.5); letter-spacing: 1px; }
+
+    /* ---- Loading ---- */
+    #load { position: fixed; inset: 0; display:flex; align-items:center; justify-content:center;
+      z-index: 200; color: var(--accent2); font-size: 12px; letter-spacing: 3px; }
+  </style>
+</head>
+<body>
+  <div id="load">INITIALISING CAD VIEWPORT…</div>
+  <div id="canvas-container"></div>
+
+  <div id="frame"></div>
+  <div class="corner tl"></div><div class="corner tr"></div>
+  <div class="corner bl"></div><div class="corner br"></div>
+
+  <div id="header">
+    <h1>SOUNDING ROCKET — VERTICAL STATIC TEST</h1>
+    <p>ASSEMBLY / GENERAL ARRANGEMENT · 3D CAD MODEL</p>
+    <span class="tag">◈ CONFIG: STATIC FIRE — VERTICAL HOLD-DOWN TOWER</span>
+  </div>
+
+  <div id="hint">DRAG&nbsp;·&nbsp;ROTATE&nbsp;&nbsp;|&nbsp;&nbsp;SCROLL&nbsp;·&nbsp;ZOOM&nbsp;&nbsp;|&nbsp;&nbsp;RIGHT-DRAG&nbsp;·&nbsp;PAN</div>
+
+  <div id="ui">
+    <div class="btnrow">
+      <button id="b-persp" class="active">PERSPECTIVE</button>
+      <button id="b-ortho">ORTHO</button>
+      <button id="b-spin" class="active">AUTO-ROTATE</button>
+    </div>
+    <div class="btnrow">
+      <button id="b-shade" class="active">SHADED</button>
+      <button id="b-wire">WIREFRAME</button>
+      <button id="b-dim" class="active">DIMENSIONS</button>
+      <button id="b-side">SIDE VIEW</button>
+    </div>
+  </div>
+
+  <div id="titleblock">
+    <div class="row">
+      <div class="cell" style="flex:2"><div class="k">Title</div><div class="v big">VERTICAL STATIC TEST FIXTURE</div></div>
+    </div>
+    <div class="row">
+      <div class="cell" style="flex:1"><div class="k">Drawing No.</div><div class="v">EMZ-RKT-0002</div></div>
+      <div class="cell" style="flex:1"><div class="k">Rev</div><div class="v">A</div></div>
+      <div class="cell" style="flex:1"><div class="k">Sheet</div><div class="v">1 / 1</div></div>
+    </div>
+    <div class="row">
+      <div class="cell" style="flex:1"><div class="k">Scale</div><div class="v">1:20</div></div>
+      <div class="cell" style="flex:1"><div class="k">Units</div><div class="v">mm</div></div>
+      <div class="cell" style="flex:1"><div class="k">Proj</div><div class="v">3RD ANGLE</div></div>
+    </div>
+    <div class="row">
+      <div class="cell" style="flex:2"><div class="k">Overall Height</div><div class="v" id="tb-len">6 200 mm</div></div>
+      <div class="cell" style="flex:1"><div class="k">Ø Body</div><div class="v">450 mm</div></div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+  (function () {
+    const container = document.getElementById('canvas-container');
+    let W = window.innerWidth, H = window.innerHeight;
+
+    // ---------- Renderer ----------
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(W, H);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+    container.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x061622, 0.028);
+
+    // ---------- Cameras ----------
+    const persp = new THREE.PerspectiveCamera(42, W / H, 0.05, 400);
+    const frust = 7;
+    const ortho = new THREE.OrthographicCamera(-frust, frust, frust*H/W, -frust*H/W, -100, 400);
+    let camera = persp;
+
+    // ---------- Lights ----------
+    scene.add(new THREE.AmbientLight(0xbfe4ff, 0.55));
+    const key = new THREE.DirectionalLight(0xffffff, 1.5);
+    key.position.set(8, 12, 7);
+    key.castShadow = true;
+    key.shadow.mapSize.set(2048, 2048);
+    key.shadow.camera.near = 1; key.shadow.camera.far = 60;
+    key.shadow.camera.left = -12; key.shadow.camera.right = 12;
+    key.shadow.camera.top = 12; key.shadow.camera.bottom = -12;
+    key.shadow.bias = -0.0004;
+    scene.add(key);
+    const fill = new THREE.DirectionalLight(0x8ec6ff, 0.7); fill.position.set(-9, 5, -6); scene.add(fill);
+    const rim  = new THREE.DirectionalLight(0x38bdf8, 0.9); rim.position.set(-4, 3, 10); scene.add(rim);
+
+    // ---------- Materials ----------
+    const M = {
+      body:   new THREE.MeshStandardMaterial({ color: 0xe8edf2, metalness: 0.55, roughness: 0.32 }),
+      body2:  new THREE.MeshStandardMaterial({ color: 0xd23b3b, metalness: 0.4, roughness: 0.4 }),
+      nose:   new THREE.MeshStandardMaterial({ color: 0xf3f5f8, metalness: 0.3, roughness: 0.25 }),
+      metal:  new THREE.MeshStandardMaterial({ color: 0xb9c2cc, metalness: 0.9, roughness: 0.28 }),
+      dark:   new THREE.MeshStandardMaterial({ color: 0x3a444e, metalness: 0.85, roughness: 0.45 }),
+      nozzle: new THREE.MeshStandardMaterial({ color: 0x6b7078, metalness: 0.95, roughness: 0.35 }),
+      copper: new THREE.MeshStandardMaterial({ color: 0xb87333, metalness: 0.95, roughness: 0.3 }),
+      steel:  new THREE.MeshStandardMaterial({ color: 0x9aa4ad, metalness: 0.92, roughness: 0.4 }),
+      steelD: new THREE.MeshStandardMaterial({ color: 0x5b636b, metalness: 0.9, roughness: 0.5 }),
+      rubber: new THREE.MeshStandardMaterial({ color: 0x1c2228, metalness: 0.2, roughness: 0.85 }),
+      glass:  new THREE.MeshStandardMaterial({ color: 0x0a2233, metalness: 0.1, roughness: 0.1 }),
+      accent: new THREE.MeshStandardMaterial({ color: 0x0f2233, metalness: 0.4, roughness: 0.5 }),
+      yellow: new THREE.MeshStandardMaterial({ color: 0xf0b429, metalness: 0.3, roughness: 0.5 }),
+    };
+    const allMeshMats = [];
+    function reg(mesh){ if(mesh.material){ allMeshMats.push(mesh.material); } return mesh; }
+
+    // ================= ROCKET =================
+    // Built along +X axis (horizontal). Nose at +X, engine at -X.
+    const rocket = new THREE.Group();
+
+    const R = 0.45;          // body radius (0.45 => 450mm dia at 1:1 scene units->meters feel)
+    function tube(len, r1, r2, mat, seg=64){
+      const g = new THREE.CylinderGeometry(r2, r1, len, seg, 1, false);
+      const m = reg(new THREE.Mesh(g, mat)); m.castShadow = m.receiveShadow = true;
+      m.rotation.z = Math.PI/2; // align cylinder (Y) to X axis
+      return m;
+    }
+    function ring(r, tubeR, mat){
+      const m = reg(new THREE.Mesh(new THREE.TorusGeometry(r, tubeR, 16, 64), mat));
+      m.rotation.y = Math.PI/2; m.castShadow = true; return m;
+    }
+
+    let x = 0; // running centre position of nose tip region
+
+    // --- Nose cone (ogive-ish via lathe) ---
+    const noseLen = 1.15;
+    const noseMesh = (function nose(){
+      const pts = [];
+      const N = 24;
+      for (let i=0;i<=N;i++){
+        const t = i/N;                 // 0 tip .. 1 base
+        const px = t*noseLen;
+        // ogive profile
+        const rr = R*Math.sqrt(t)*(1.02) ;
+        pts.push(new THREE.Vector2(rr, px));
+      }
+      const g = new THREE.LatheGeometry(pts, 64);
+      const nm = reg(new THREE.Mesh(g, M.nose));
+      nm.castShadow = nm.receiveShadow = true;
+      nm.rotation.z = Math.PI/2;        // lathe around Y -> tip toward +X, base toward -X
+      rocket.add(nm);
+      return nm;
+    })();
+    M.nose.side = THREE.DoubleSide;
+
+    // Layout: nose tip at X = +Xtip, base (adjoining body) at Xtip-noseLen
+    const Xtip = 3.1;                   // nose tip x
+    noseMesh.position.x = Xtip;
+
+    // metal nose tip
+    const tip = reg(new THREE.Mesh(new THREE.SphereGeometry(0.035, 16, 12), M.metal));
+    tip.position.x = Xtip; tip.castShadow = true; rocket.add(tip);
+
+    let cx = Xtip - noseLen;            // base of nose
+
+    function addSection(len, r1, r2, mat, deco){
+      const t = tube(len, r1, r2, mat);
+      t.position.x = cx - len/2;
+      rocket.add(t);
+      const seg = { x0: cx, x1: cx-len, mid: cx-len/2, len };
+      cx -= len;
+      if (deco) deco(seg);
+      return seg;
+    }
+
+    // --- Payload / avionics bay (with red band) ---
+    addSection(0.55, R, R, M.body, (s)=>{
+      // separation ring
+      rocket.add(pos(ring(R+0.006, 0.012, M.metal), s.x0));
+      rocket.add(pos(ring(R+0.006, 0.012, M.metal), s.x1));
+      // avionics access hatch
+      const hatch = reg(new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.18, 0.12), M.dark));
+      hatch.position.set(s.mid, 0, 0); hatch.rotation.x=0;
+      const hp = new THREE.Object3D(); hp.add(hatch);
+      hatch.position.set(s.mid, R, 0);
+      rocket.add(hatch);
+    });
+
+    // --- Red identification band section ---
+    addSection(0.35, R, R, M.body2, (s)=>{
+      rocket.add(pos(ring(R+0.004, 0.006, M.metal), s.x0));
+      rocket.add(pos(ring(R+0.004, 0.006, M.metal), s.x1));
+    });
+
+    // --- Oxidizer tank section (long) ---
+    const oxSeg = addSection(1.5, R, R, M.body, (s)=>{
+      rocket.add(pos(ring(R+0.004, 0.006, M.metal), s.x0));
+      // frost/fill line detail
+      const band = tube(0.04, R+0.002, R+0.002, M.metal); band.position.x = s.x0-0.25;
+      rocket.add(band);
+    });
+
+    // --- Interstage / mid ring ---
+    addSection(0.18, R, R, M.body2, (s)=>{
+      rocket.add(pos(ring(R+0.008, 0.014, M.metal), s.mid));
+    });
+
+    // --- Fuel tank section (long) with cable raceway ---
+    const fuelSeg = addSection(1.5, R, R, M.body, (s)=>{
+      rocket.add(pos(ring(R+0.004, 0.006, M.metal), s.x0));
+      rocket.add(pos(ring(R+0.004, 0.006, M.metal), s.x1));
+    });
+
+    // --- Aft / thrust structure (slight taper to engine) ---
+    const aftLen = 0.55;
+    const aftSeg = addSection(aftLen, R, R*0.82, M.body, (s)=>{
+      rocket.add(pos(ring(R+0.006, 0.01, M.metal), s.x0));
+    });
+    const engMountR = R*0.82;
+    const engineX = cx; // aft face
+
+    // ---- External cable raceway conduit running along top of body ----
+    (function raceway(){
+      const from = oxSeg.x0 + 0.1, to = aftSeg.x1;
+      const len = from - to;
+      const c = reg(new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, len, 20), M.dark));
+      c.rotation.z = Math.PI/2;
+      c.position.set((from+to)/2, R+0.028, 0);
+      c.castShadow = true; rocket.add(c);
+      // end caps
+      [from, to].forEach(px=>{
+        const cap = reg(new THREE.Mesh(new THREE.SphereGeometry(0.032,16,12,0,Math.PI*2,0,Math.PI/2), M.dark));
+        cap.position.set(px, R+0.028, 0); cap.rotation.z = (px===from?-1:1)*Math.PI/2; rocket.add(cap);
+      });
+    })();
+
+    // ---- Fins (4) at aft ----
+    (function fins(){
+      const finRootX = aftSeg.x0 - 0.02;
+      const rootChord = 0.5, tipChord = 0.22, span = 0.42, sweep = 0.32;
+      const shape = new THREE.Shape();
+      shape.moveTo(0, 0);
+      shape.lineTo(rootChord, 0);
+      shape.lineTo(rootChord - (rootChord - tipChord - sweep) - tipChord + sweep, -span); // trailing tip
+      shape.lineTo(sweep, -span);
+      shape.lineTo(0,0);
+      // simpler trapezoid:
+      const s2 = new THREE.Shape();
+      s2.moveTo(0,0); s2.lineTo(rootChord,0);
+      s2.lineTo(rootChord - sweep - (rootChord - tipChord - sweep), span); // keep tidy below
+      const geo = new THREE.ExtrudeGeometry(makeFinShape(rootChord, tipChord, span, sweep),
+        { depth: 0.02, bevelEnabled: true, bevelThickness: 0.01, bevelSize: 0.012, bevelSegments: 2 });
+      for (let i=0;i<4;i++){
+        const fin = reg(new THREE.Mesh(geo, M.body2));
+        fin.castShadow = fin.receiveShadow = true;
+        const g = new THREE.Group();
+        // place fin: extrude is in XY plane (X=chord along body, Y=span outward), Z=thickness
+        fin.rotation.y = Math.PI;          // point chord toward -X (aft)
+        fin.position.set(0,0,0);
+        const holder = new THREE.Group();
+        holder.add(fin);
+        // orient: we want fin plane containing X axis, extending radially
+        fin.position.x = finRootX;
+        fin.rotation.x = 0;
+        holder.rotation.x = i * Math.PI/2;
+        // move fin outward to body surface
+        fin.position.y = engMountR*0.95;
+        rocket.add(holder);
+        holder.add(fin);
+      }
+    })();
+    function makeFinShape(root, tip, span, sweep){
+      const s = new THREE.Shape();
+      s.moveTo(0, 0);
+      s.lineTo(0, root);
+      s.lineTo(span, root - sweep);
+      s.lineTo(span, root - sweep - tip);
+      s.lineTo(0, 0);
+      return s;
+    }
+
+    // ---- Engine: throat, nozzle bell, plumbing ----
+    (function engine(){
+      // engine bay ring
+      const mount = reg(new THREE.Mesh(new THREE.CylinderGeometry(engMountR, engMountR, 0.08, 48), M.dark));
+      mount.rotation.z = Math.PI/2; mount.position.x = engineX; mount.castShadow=true; rocket.add(mount);
+
+      // throat
+      const throatR = 0.09;
+      const conv = reg(new THREE.Mesh(new THREE.CylinderGeometry(throatR, engMountR*0.7, 0.22, 48, 1, true), M.nozzle));
+      conv.rotation.z = Math.PI/2; conv.position.x = engineX - 0.12; conv.material.side = THREE.DoubleSide;
+      conv.castShadow=true; rocket.add(conv);
+
+      // nozzle bell (lathe)
+      const bellLen = 0.6, exitR = 0.34;
+      const pts=[]; const N=20;
+      for(let i=0;i<=N;i++){
+        const t=i/N;
+        const rr = throatR + (exitR-throatR)*Math.pow(t,0.7);
+        pts.push(new THREE.Vector2(rr, t*bellLen));
+      }
+      const bg = new THREE.LatheGeometry(pts, 64);
+      const bell = reg(new THREE.Mesh(bg, M.copper));
+      bell.rotation.z = Math.PI/2;               // open toward -X
+      bell.position.x = engineX - 0.23;
+      bell.material.side = THREE.DoubleSide;
+      bell.castShadow=true; rocket.add(bell);
+
+      // regen cooling channels (rings on bell)
+      for(let i=1;i<=6;i++){
+        const t=i/7; const rr = throatR + (exitR-throatR)*Math.pow(t,0.7);
+        const rg = reg(new THREE.Mesh(new THREE.TorusGeometry(rr, 0.006, 8, 64), M.steel));
+        rg.rotation.y = Math.PI/2; rg.position.x = engineX - 0.23 - t*bellLen; rocket.add(rg);
+      }
+
+      // turbopump / plumbing blobs
+      const pump = reg(new THREE.Mesh(new THREE.SphereGeometry(0.09,20,16), M.steel));
+      pump.position.set(engineX-0.02, -0.18, 0.14); pump.castShadow=true; rocket.add(pump);
+      const line = reg(new THREE.Mesh(new THREE.TorusGeometry(0.12,0.02,10,24, Math.PI*1.2), M.steel));
+      line.position.set(engineX+0.05, -0.1, 0.1); line.rotation.set(0.4,0.6,0.5); rocket.add(line);
+      // gimbal actuators
+      for(let i=0;i<2;i++){
+        const act = reg(new THREE.Mesh(new THREE.CylinderGeometry(0.02,0.02,0.16,12), M.metal));
+        const g=new THREE.Group(); g.add(act); act.position.set(engineX+0.02, 0,0);
+        act.rotation.z=0.9; act.position.y = (i? 0.12:-0.12); act.position.z=(i?0.06:-0.06);
+        rocket.add(act);
+      }
+    })();
+
+    function pos(mesh, X){ mesh.position.x = X; return mesh; }
+
+    // Panel-line rings for realism along body (subtle)
+    (function panelLines(){
+      const start = Xtip-noseLen, end = aftSeg.x1;
+      for(let px=start-0.15; px>end; px-=0.42){
+        const r = reg(new THREE.Mesh(new THREE.TorusGeometry(R+0.001,0.0025,8,64), M.metal));
+        r.rotation.y=Math.PI/2; r.position.x=px; r.material.transparent=true; r.material.opacity=0.5;
+        rocket.add(r);
+      }
+    })();
+
+    scene.add(rocket);
+
+    // ----- Orient rocket VERTICAL (nose up, engine down) -----
+    const nozzleTipX = aftSeg.x1 - 0.85;   // lowest local point (nozzle exit)
+    const NOZ_Y = 0.9;                      // nozzle exit height above pad
+    rocket.rotation.z = Math.PI/2;          // local +X (nose) -> world +Y (up)
+    rocket.position.y = NOZ_Y - nozzleTipX; // lift so nozzle sits above deflector
+    const posY = rocket.position.y;
+    const worldY = (localX)=> localX + posY; // helper: local axial x -> world height
+    const deckY  = worldY(aftSeg.x1);        // thrust-table height (engine mount)
+    const noseY  = worldY(Xtip);             // nose-tip height
+    const CL = NOZ_Y;                        // (kept for annotation helpers)
+
+    // ================= VERTICAL TEST STAND =================
+    const stand = new THREE.Group();
+
+    // ----- Ground / test pad -----
+    const pad = reg(new THREE.Mesh(new THREE.CircleGeometry(8, 96),
+      new THREE.MeshStandardMaterial({ color: 0x0c2334, roughness: 0.95, metalness: 0.05 })));
+    pad.rotation.x = -Math.PI/2; pad.position.y = 0; pad.receiveShadow = true; scene.add(pad);
+
+    // ----- Flame deflector (apex-up cone splitting the downward exhaust) -----
+    (function deflector(){
+      const h = 1.15, rb = 1.35;
+      const cone = reg(new THREE.Mesh(new THREE.ConeGeometry(rb, h, 40), M.dark));
+      cone.position.y = h/2; cone.castShadow = cone.receiveShadow = true; stand.add(cone);
+      // trench rim ring
+      const rim = reg(new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, 0.12, 48, 1, true), M.steelD));
+      rim.material.side = THREE.DoubleSide; rim.position.y = 0.06; stand.add(rim);
+    })();
+
+    // ----- Thrust table: raised deck with central exhaust hole + legs -----
+    (function thrustTable(){
+      const holeR = 0.58, th = 0.14, half = 1.4;
+      const shape = new THREE.Shape();
+      shape.moveTo(-half,-half); shape.lineTo(half,-half);
+      shape.lineTo(half,half); shape.lineTo(-half,half); shape.lineTo(-half,-half);
+      const hole = new THREE.Path();
+      hole.absarc(0,0,holeR,0,Math.PI*2,true); shape.holes.push(hole);
+      const deck = reg(new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:th,bevelEnabled:false}), M.steelD));
+      deck.rotation.x = -Math.PI/2; deck.position.y = deckY; deck.castShadow=deck.receiveShadow=true; stand.add(deck);
+      // four legs
+      [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([sx,sz])=>{
+        const leg = reg(new THREE.Mesh(new THREE.BoxGeometry(0.13, deckY, 0.13), M.steel));
+        leg.position.set(sx*1.25, deckY/2, sz*1.25); leg.castShadow=true; stand.add(leg);
+      });
+      // diagonal cross braces
+      [[1,0],[-1,0],[0,1],[0,-1]].forEach(([sx,sz])=>{
+        const br = reg(new THREE.Mesh(new THREE.BoxGeometry(0.05, 2.4, 0.05), M.steel));
+        br.position.set(sx*1.25, deckY*0.5, sz*1.25);
+        br.rotation.z = sx*0.9; br.rotation.x = sz*0.9; stand.add(br);
+      });
+      // engine thrust-mount collar around the throat
+      const collar = reg(new THREE.Mesh(
+        new THREE.CylinderGeometry(0.52, 0.52, 0.24, 40, 1, true), M.metal));
+      collar.material.side = THREE.DoubleSide; collar.position.y = deckY; stand.add(collar);
+    })();
+
+    // ----- Launch / umbilical tower (lattice) on +X side -----
+    const TX = R + 1.55, foot = 0.36, towerTop = noseY + 0.2;
+    (function tower(){
+      // 4 vertical posts
+      [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([sx,sz])=>{
+        const post = reg(new THREE.Mesh(new THREE.BoxGeometry(0.16, towerTop, 0.16), M.steel));
+        post.position.set(TX+sx*foot, towerTop/2, sz*foot); post.castShadow=true; stand.add(post);
+      });
+      // horizontal rungs (square frames)
+      for(let y=0.4; y<towerTop-0.2; y+=1.05){
+        const bx = reg(new THREE.Mesh(new THREE.BoxGeometry(2*foot+0.16, 0.09, 0.09), M.steelD));
+        bx.position.set(TX, y, foot); stand.add(bx);
+        const bx2 = bx.clone(); bx2.position.set(TX, y, -foot); stand.add(bx2);
+        const bz = reg(new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.09, 2*foot), M.steelD));
+        bz.position.set(TX+foot, y, 0); stand.add(bz);
+        const bz2 = bz.clone(); bz2.position.set(TX-foot, y, 0); stand.add(bz2);
+      }
+      // outboard diagonal braces (X-pattern on the +X face)
+      for(let y=0.5; y<towerTop-1.4; y+=2.1){
+        const d = reg(new THREE.Mesh(new THREE.BoxGeometry(0.07, 1.55, 0.07), M.steelD));
+        d.position.set(TX+foot, y+0.55, 0); d.rotation.x = 0.72; stand.add(d);
+        const d2 = reg(new THREE.Mesh(new THREE.BoxGeometry(0.07, 1.55, 0.07), M.steelD));
+        d2.position.set(TX+foot, y+0.55, 0); d2.rotation.x = -0.72; stand.add(d2);
+      }
+    })();
+
+    // ----- Hold-down / guide clamp arms at three stations -----
+    (function holdDown(){
+      [deckY+0.5, worldY(oxSeg.mid), worldY(Xtip-noseLen-0.15)].forEach(hz=>{
+        // clamp collar hugging the body
+        const collar = reg(new THREE.Mesh(
+          new THREE.CylinderGeometry(R+0.07, R+0.07, 0.18, 40, 1, true), M.yellow));
+        collar.material.side = THREE.DoubleSide; collar.position.y = hz; collar.castShadow=true; stand.add(collar);
+        // two arms reaching to the tower
+        [-0.18,0.18].forEach(sz=>{
+          const span = (TX-foot) - R;
+          const arm = reg(new THREE.Mesh(new THREE.BoxGeometry(span, 0.1, 0.09), M.yellow));
+          arm.position.set(R + span/2, hz, sz); arm.castShadow=true; stand.add(arm);
+        });
+      });
+    })();
+
+    scene.add(stand);
+
+    // ================= DIMENSION ANNOTATIONS =================
+    const dims = new THREE.Group();
+    function makeLabel(text){
+      const c = document.createElement('canvas');
+      const ctx = c.getContext('2d');
+      const fs = 44; ctx.font = `600 ${fs}px ui-monospace, monospace`;
+      const w = ctx.measureText(text).width;
+      c.width = w + 40; c.height = fs + 28;
+      ctx.font = `600 ${fs}px ui-monospace, monospace`;
+      ctx.fillStyle = 'rgba(6,22,34,0.0)'; ctx.fillRect(0,0,c.width,c.height);
+      ctx.strokeStyle = 'rgba(56,189,248,0.9)'; ctx.lineWidth=2;
+      ctx.fillStyle = '#eaf6ff';
+      ctx.textBaseline='middle'; ctx.textAlign='center';
+      ctx.fillText(text, c.width/2, c.height/2);
+      const tex = new THREE.CanvasTexture(c); tex.anisotropy=4;
+      const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent:true, depthTest:false }));
+      spr.scale.set(c.width/c.height*0.34, 0.34, 1);
+      return spr;
+    }
+    function dimLine(x0, x1, y, z, label, dir){
+      dir = dir || 1;                    // +1 label above line, -1 below
+      const g = new THREE.Group();
+      const mat = new THREE.LineBasicMaterial({ color: 0x38bdf8 });
+      const geo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(x0, y, z), new THREE.Vector3(x1, y, z)]);
+      g.add(new THREE.Line(geo, mat));
+      // ticks + extension lines back to the airframe centreline
+      [x0,x1].forEach(px=>{
+        const t = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(px, y-0.08, z), new THREE.Vector3(px, y+0.08, z)]);
+        g.add(new THREE.Line(t, mat));
+        const e = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(px, y, z), new THREE.Vector3(px, CL, z)]);
+        const em = new THREE.LineDashedMaterial({ color:0x38bdf8, dashSize:0.06, gapSize:0.04, opacity:0.5, transparent:true });
+        const el = new THREE.Line(e, em); el.computeLineDistances(); g.add(el);
+      });
+      const lab = makeLabel(label);
+      lab.position.set((x0+x1)/2, y + dir*0.24, z);
+      g.add(lab);
+      return g;
+    }
+    const dmat = new THREE.LineBasicMaterial({ color: 0x38bdf8 });
+    // ---- overall height dimension (vertical) on the left/front ----
+    (function heightDim(){
+      const xh = -(R + 1.35), zh = 0.35, y0 = NOZ_Y, y1 = noseY;
+      dims.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(xh, y0, zh), new THREE.Vector3(xh, y1, zh)]), dmat));
+      [y0,y1].forEach(py=>{
+        dims.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(xh-0.08, py, zh), new THREE.Vector3(xh+0.08, py, zh)]), dmat));
+        const e = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(xh, py, zh), new THREE.Vector3(0, py, zh)]),
+          new THREE.LineDashedMaterial({ color:0x38bdf8, dashSize:0.06, gapSize:0.04, opacity:0.4, transparent:true }));
+        e.computeLineDistances(); dims.add(e);
+      });
+      const lab = makeLabel('6 200 mm'); lab.position.set(xh-0.55, (y0+y1)/2, zh); dims.add(lab);
+    })();
+    // ---- diameter dim at the oxidizer station (front) ----
+    (function diaDim(){
+      const py = worldY(oxSeg.mid), zd = R + 0.5;
+      dims.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-R, py, zd), new THREE.Vector3(R, py, zd)]), dmat));
+      [-R,R].forEach(px=>dims.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(px, py-0.07, zd), new THREE.Vector3(px, py+0.07, zd)]), dmat)));
+      const lab = makeLabel('Ø 450'); lab.position.set(0, py+0.3, zd); dims.add(lab);
+    })();
+    // ---- component callouts stacked by height on the left/front ----
+    const labX = -(R + 1.15), lz = 0.35;
+    function callout(text, localX){
+      const y = worldY(localX);
+      const lab = makeLabel(text); lab.position.set(labX, y, lz);
+      const lmat = new THREE.LineBasicMaterial({ color: 0x7dd3fc, transparent:true, opacity:0.8 });
+      dims.add(lab);
+      dims.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-R*0.6, y, R*0.5), new THREE.Vector3(labX+0.55, y, lz)]), lmat));
+    }
+    callout('NOSE CONE',       Xtip - 0.55);
+    callout('PAYLOAD BAY',     Xtip - noseLen - 0.25);
+    callout('OXIDIZER TANK',   oxSeg.mid);
+    callout('FUEL TANK',       fuelSeg.mid);
+    callout('FINS',            aftSeg.x0 - 0.1);
+    callout('NOZZLE / ENGINE', aftSeg.x1 - 0.4);
+    scene.add(dims);
+
+    // ================= Reference grid =================
+    const grid = new THREE.GridHelper(16, 32, 0x2a6f92, 0x163a4f);
+    grid.material.opacity = 0.35; grid.material.transparent = true;
+    grid.position.y = 0.001; scene.add(grid);
+
+    // ================= Interaction (orbit) =================
+    const target = new THREE.Vector3(0, (NOZ_Y + noseY)/2, 0);
+    let theta = 0.7, phi = 1.05, radius = 12.5;
+    let dragging = false, panning = false, px2=0, py2=0;
+    let autoRotate = true;
+
+    function updateCam(){
+      const cp = new THREE.Vector3(
+        target.x + radius*Math.sin(phi)*Math.cos(theta),
+        target.y + radius*Math.cos(phi),
+        target.z + radius*Math.sin(phi)*Math.sin(theta)
+      );
+      camera.position.copy(cp);
+      camera.lookAt(target);
+      if (camera.isOrthographicCamera){
+        const z = radius/2.0;
+        camera.left=-z*W/H*0.5*2*0.5; // keep simple
+      }
+    }
+    renderer.domElement.addEventListener('mousedown', e=>{
+      if(e.button===2){ panning=true; } else { dragging=true; autoRotate=false; setActive('b-spin', false); }
+      px2=e.clientX; py2=e.clientY;
+    });
+    window.addEventListener('mouseup', ()=>{ dragging=false; panning=false; });
+    window.addEventListener('mousemove', e=>{
+      const dx=e.clientX-px2, dy=e.clientY-py2; px2=e.clientX; py2=e.clientY;
+      if(dragging){ theta -= dx*0.006; phi = Math.max(0.15, Math.min(Math.PI-0.15, phi - dy*0.006)); }
+      else if(panning){
+        const panScale = radius*0.0011;
+        const right = new THREE.Vector3().subVectors(camera.position, target).cross(camera.up).normalize();
+        target.addScaledVector(right, -dx*panScale);
+        target.y += dy*panScale;
+      }
+    });
+    renderer.domElement.addEventListener('contextmenu', e=>e.preventDefault());
+    renderer.domElement.addEventListener('wheel', e=>{
+      e.preventDefault();
+      radius = Math.max(3.5, Math.min(28, radius + e.deltaY*0.01));
+      if(camera.isOrthographicCamera) setOrthoZoom();
+    }, {passive:false});
+
+    // touch
+    let lastTouch=null, lastDist=null;
+    renderer.domElement.addEventListener('touchstart', e=>{
+      if(e.touches.length===1){ lastTouch={x:e.touches[0].clientX,y:e.touches[0].clientY}; autoRotate=false; setActive('b-spin',false);}
+      else if(e.touches.length===2){ lastDist=touchDist(e); }
+    },{passive:false});
+    renderer.domElement.addEventListener('touchmove', e=>{
+      e.preventDefault();
+      if(e.touches.length===1 && lastTouch){
+        const dx=e.touches[0].clientX-lastTouch.x, dy=e.touches[0].clientY-lastTouch.y;
+        theta-=dx*0.006; phi=Math.max(0.15,Math.min(Math.PI-0.15, phi-dy*0.006));
+        lastTouch={x:e.touches[0].clientX,y:e.touches[0].clientY};
+      } else if(e.touches.length===2){
+        const d=touchDist(e); if(lastDist){ radius=Math.max(3.5,Math.min(28, radius+(lastDist-d)*0.02)); if(camera.isOrthographicCamera) setOrthoZoom(); } lastDist=d;
+      }
+    },{passive:false});
+    function touchDist(e){ const a=e.touches[0],b=e.touches[1]; return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY); }
+
+    function setOrthoZoom(){
+      const z = radius/2.4;
+      ortho.left=-z*W/H; ortho.right=z*W/H; ortho.top=z; ortho.bottom=-z; ortho.updateProjectionMatrix();
+    }
+
+    // ================= UI =================
+    function setActive(id, on){ const b=document.getElementById(id); if(b) b.classList.toggle('active', on); }
+    function group(ids, active){ ids.forEach(i=>setActive(i, i===active)); }
+
+    document.getElementById('b-persp').onclick = ()=>{ camera=persp; group(['b-persp','b-ortho'],'b-persp'); };
+    document.getElementById('b-ortho').onclick = ()=>{ camera=ortho; setOrthoZoom(); group(['b-persp','b-ortho'],'b-ortho'); };
+    document.getElementById('b-spin').onclick = (e)=>{ autoRotate=!autoRotate; e.target.classList.toggle('active', autoRotate); };
+
+    let wire=false;
+    document.getElementById('b-shade').onclick = ()=>{ wire=false; setWire(false); group(['b-shade','b-wire'],'b-shade'); };
+    document.getElementById('b-wire').onclick  = ()=>{ wire=true;  setWire(true);  group(['b-shade','b-wire'],'b-wire'); };
+    function setWire(on){ allMeshMats.forEach(m=>{ m.wireframe=on; }); }
+
+    let dimOn=true;
+    document.getElementById('b-dim').onclick = (e)=>{ dimOn=!dimOn; dims.visible=dimOn; e.target.classList.toggle('active', dimOn); };
+
+    document.getElementById('b-side').onclick = ()=>{ theta=Math.PI/2; phi=Math.PI/2; autoRotate=false; setActive('b-spin',false); };
+
+    // ================= Resize =================
+    window.addEventListener('resize', ()=>{
+      W=window.innerWidth; H=window.innerHeight;
+      renderer.setSize(W,H);
+      persp.aspect=W/H; persp.updateProjectionMatrix();
+      setOrthoZoom();
+    });
+    setOrthoZoom();
+
+    // ================= Loop =================
+    document.getElementById('load').style.display='none';
+    function animate(){
+      requestAnimationFrame(animate);
+      if(autoRotate) theta += 0.0022;
+      updateCam();
+      // keep sprite labels facing camera handled by Sprite automatically
+      renderer.render(scene, camera);
+    }
+    animate();
+  })();
+  </script>
+</body>
+</html>
