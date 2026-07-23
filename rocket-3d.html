@@ -481,25 +481,27 @@
     stand.add(cradleSupport(rocketMidX - 1.4 + (-rocketMidX)));
     stand.add(cradleSupport(rocketMidX + 1.1 + (-rocketMidX)));
 
-    // ----- Thrust reaction wall (behind engine, at -X) -----
+    // ----- Thrust reaction wall (at the FORWARD / nose end, +X) -----
+    // Reacts the forward thrust; the engine fires aft into the flame deflector
+    // with a clear exhaust path.
     (function thrustWall(){
-      const wallX = (rocketMinX) + (-rocketMidX) - 0.9;
+      const wallX = (rocketMaxX) + (-rocketMidX) + 0.9;
       const wall = reg(new THREE.Mesh(new THREE.BoxGeometry(0.25, 2.2, 2.2), M.steelD));
       wall.position.set(wallX, 1.1, 0); wall.castShadow=wall.receiveShadow=true; stand.add(wall);
-      // load cell between engine and wall
+      // load cell between the nose end and the wall (faces back toward the rocket)
       const cell = reg(new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.12,0.3,24), M.metal));
-      cell.rotation.z=Math.PI/2; cell.position.set(wallX+0.28, CL, 0); cell.castShadow=true; stand.add(cell);
+      cell.rotation.z=Math.PI/2; cell.position.set(wallX-0.28, CL, 0); cell.castShadow=true; stand.add(cell);
       const cellBand = reg(new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.13,0.05,24), M.yellow));
-      cellBand.rotation.z=Math.PI/2; cellBand.position.set(wallX+0.28, CL, 0); stand.add(cellBand);
-      // ribs
+      cellBand.rotation.z=Math.PI/2; cellBand.position.set(wallX-0.28, CL, 0); stand.add(cellBand);
+      // stiffening ribs on the far side of the wall
       [-0.7,0.7].forEach(z=>{
         const rib = reg(new THREE.Mesh(new THREE.BoxGeometry(0.5,2.0,0.08), M.steel));
-        rib.position.set(wallX-0.2,1.1,z); stand.add(rib);
+        rib.position.set(wallX+0.2,1.1,z); stand.add(rib);
       });
       // anchor gussets to ground
       [-0.6,0.6].forEach(z=>{
         const gus = reg(new THREE.Mesh(new THREE.BoxGeometry(0.7,0.7,0.1), M.steel));
-        gus.position.set(wallX-0.35,0.35,z); gus.rotation.z=Math.PI/4; stand.add(gus);
+        gus.position.set(wallX+0.35,0.35,z); gus.rotation.z=Math.PI/4; stand.add(gus);
       });
     })();
 

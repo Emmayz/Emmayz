@@ -179,13 +179,16 @@ module cradle_support(){
         }
 }
 
-module thrust_wall(){
+// dir = +1: rocket sits on the +X side of the wall (load cell/ribs orient to suit)
+// dir = -1: rocket sits on the -X side of the wall
+module thrust_wall(dir=1){
     color("slategray") translate([0,0,1100]) cube([250,2200,2200], center=true);
+    // stiffening ribs on the side AWAY from the rocket
     for(z=[-700,700]) color("lightsteelblue")
-        translate([-200,z,1100]) cube([500,80,2000], center=true);
-    // load cell toward rocket
-    color("silver") translate([280,0,CL_H]) rotate([0,90,0]) cylinder(h=300, r=120, center=true);
-    color("gold")   translate([280,0,CL_H]) rotate([0,90,0]) cylinder(h=50,  r=130, center=true);
+        translate([-dir*200,z,1100]) cube([500,80,2000], center=true);
+    // thrust take-out load cell on the side FACING the rocket
+    color("silver") translate([dir*280,0,CL_H]) rotate([0,90,0]) cylinder(h=300, r=120, center=true);
+    color("gold")   translate([dir*280,0,CL_H]) rotate([0,90,0]) cylinder(h=50,  r=130, center=true);
 }
 
 module flame_deflector(){
@@ -206,10 +209,11 @@ module assembly(){
     translate([OAL*0.55 - L_NOSE - 600, 0, 0]) cradle_support();
     translate([OAL*0.55 - OAL + 900,     0, 0]) cradle_support();
 
-    // thrust reaction wall behind engine (-X end)
-    translate([OAL*0.55 - OAL - 700, 0, 0]) thrust_wall();
+    // thrust reaction wall at the FORWARD (nose) end — reacts the forward
+    // thrust; load cell faces back toward the rocket (dir=-1)
+    translate([OAL*0.55 + 600, 0, 0]) thrust_wall(-1);
 
-    // flame deflector under nozzle
+    // flame deflector under/behind the nozzle at the aft end (clear exhaust path)
     translate([OAL*0.55 - OAL - 100, 0, 0]) flame_deflector();
 
     // ground pad
