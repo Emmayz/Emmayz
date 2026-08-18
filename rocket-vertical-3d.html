@@ -424,16 +424,17 @@
 
     scene.add(rocket);
 
-    // ----- Orient rocket VERTICAL (nose up, engine down) -----
+    // ----- Orient rocket VERTICAL (nose up, engine down), low to the ground -----
     const nozzleTipX = aftSeg.x1 - 0.85;   // lowest local point (nozzle exit)
-    const NOZ_Y = 0.9;                      // nozzle exit height above pad
+    const NOZ_Y = 0.34;                     // nozzle exit height above pad (low)
     rocket.rotation.z = Math.PI/2;          // local +X (nose) -> world +Y (up)
-    rocket.position.y = NOZ_Y - nozzleTipX; // lift so nozzle sits above deflector
+    rocket.position.y = NOZ_Y - nozzleTipX; // lift so nozzle clears the deflector
     const posY = rocket.position.y;
     const worldY = (localX)=> localX + posY; // helper: local axial x -> world height
-    const deckY  = worldY(aftSeg.x1);        // thrust-table height (engine mount)
+    const deckY  = worldY(aftSeg.x1);        // engine-mount / pedestal deck height
     const noseY  = worldY(Xtip);             // nose-tip height
     const CL = NOZ_Y;                        // (kept for annotation helpers)
+    const SPAN = 1.0;                        // pedestal column half-spacing
 
     // ================= VERTICAL TEST STAND =================
     const stand = new THREE.Group();
@@ -443,80 +444,111 @@
       new THREE.MeshStandardMaterial({ color: 0x0c2334, roughness: 0.95, metalness: 0.05 })));
     pad.rotation.x = -Math.PI/2; pad.position.y = 0; pad.receiveShadow = true; scene.add(pad);
 
-    // ----- Flame deflector (apex-up cone splitting the downward exhaust) -----
-    (function deflector(){
-      const h = 1.15, rb = 1.35;
-      const cone = reg(new THREE.Mesh(new THREE.ConeGeometry(rb, h, 40), M.dark));
-      cone.position.y = h/2; cone.castShadow = cone.receiveShadow = true; stand.add(cone);
-      // trench rim ring
-      const rim = reg(new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, 0.12, 48, 1, true), M.steelD));
-      rim.material.side = THREE.DoubleSide; rim.position.y = 0.06; stand.add(rim);
+    // ----- Flame trench at grade with an angled deflector (jet turned to -Z) -----
+    (function flameTrench(){
+      const w = 1.15, len = 2.7, cz = -1.0;
+      const floor = reg(new THREE.Mesh(new THREE.BoxGeometry(w, 0.06, len), M.steelD));
+      floor.position.set(0, 0.03, cz); floor.receiveShadow=true; stand.add(floor);
+      [-1,1].forEach(sx=>{                 // side walls
+        const wl = reg(new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.42, len), M.dark));
+        wl.position.set(sx*w/2, 0.21, cz); wl.castShadow=true; stand.add(wl);
+      });
+      const head = reg(new THREE.Mesh(new THREE.BoxGeometry(w, 0.42, 0.07), M.dark)); // head wall under nozzle
+      head.position.set(0, 0.21, 0.28); stand.add(head);
+      // angled deflector ramp: ridge just under the nozzle, sloping down to -Z
+      const ramp = reg(new THREE.Mesh(new THREE.BoxGeometry(0.98, 0.07, 2.15), M.steel));
+      ramp.position.set(0, 0.1, -0.78); ramp.rotation.x = -0.30; ramp.castShadow=true; stand.add(ramp);
     })();
 
-    // ----- Thrust table: raised deck with central exhaust hole + legs -----
-    (function thrustTable(){
-      const holeR = 0.58, th = 0.14, half = 1.4;
-      const shape = new THREE.Shape();
-      shape.moveTo(-half,-half); shape.lineTo(half,-half);
-      shape.lineTo(half,half); shape.lineTo(-half,half); shape.lineTo(-half,-half);
-      const hole = new THREE.Path();
-      hole.absarc(0,0,holeR,0,Math.PI*2,true); shape.holes.push(hole);
-      const deck = reg(new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:th,bevelEnabled:false}), M.steelD));
-      deck.rotation.x = -Math.PI/2; deck.position.y = deckY; deck.castShadow=deck.receiveShadow=true; stand.add(deck);
-      // four legs
+    // ----- Short braced thrust pedestal with central exhaust hole -----
+    (function pedestal(){
+      const colW = 0.3, half = SPAN + 0.23, holeR = 0.58;
+      // four columns
       [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([sx,sz])=>{
-        const leg = reg(new THREE.Mesh(new THREE.BoxGeometry(0.13, deckY, 0.13), M.steel));
-        leg.position.set(sx*1.25, deckY/2, sz*1.25); leg.castShadow=true; stand.add(leg);
+        const col = reg(new THREE.Mesh(new THREE.BoxGeometry(colW, deckY-0.12, colW), M.steel));
+        col.position.set(sx*SPAN, (deckY-0.12)/2, sz*SPAN); col.castShadow=true; stand.add(col);
       });
-      // diagonal cross braces
-      [[1,0],[-1,0],[0,1],[0,-1]].forEach(([sx,sz])=>{
-        const br = reg(new THREE.Mesh(new THREE.BoxGeometry(0.05, 2.4, 0.05), M.steel));
-        br.position.set(sx*1.25, deckY*0.5, sz*1.25);
-        br.rotation.z = sx*0.9; br.rotation.x = sz*0.9; stand.add(br);
+      // top & bottom perimeter ring beams
+      [0.24, deckY-0.16].forEach(y=>{
+        [[0,1],[0,-1]].forEach(([,sz])=>{
+          const b = reg(new THREE.Mesh(new THREE.BoxGeometry(2*SPAN+colW, 0.15, 0.17), M.steelD));
+          b.position.set(0, y, sz*SPAN); stand.add(b);
+        });
+        [[1,0],[-1,0]].forEach(([sx])=>{
+          const b = reg(new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.15, 2*SPAN+colW), M.steelD));
+          b.position.set(sx*SPAN, y, 0); stand.add(b);
+        });
       });
-      // engine thrust-mount collar around the throat
-      const collar = reg(new THREE.Mesh(
-        new THREE.CylinderGeometry(0.52, 0.52, 0.24, 40, 1, true), M.metal));
+      // X-braces on the four faces
+      const bl = 2*SPAN*1.28;
+      [-1,1].forEach(sz=>[0.42,-0.42].forEach(r=>{
+        const d = reg(new THREE.Mesh(new THREE.BoxGeometry(bl, 0.08, 0.08), M.steelD));
+        d.position.set(0, deckY*0.42, sz*SPAN); d.rotation.z = r; stand.add(d);
+      }));
+      [-1,1].forEach(sx=>[0.42,-0.42].forEach(r=>{
+        const d = reg(new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, bl), M.steelD));
+        d.position.set(sx*SPAN, deckY*0.42, 0); d.rotation.x = r; stand.add(d);
+      }));
+      // top deck with central exhaust hole
+      const shape = new THREE.Shape();
+      shape.moveTo(-half,-half); shape.lineTo(half,-half); shape.lineTo(half,half);
+      shape.lineTo(-half,half); shape.lineTo(-half,-half);
+      const hole = new THREE.Path(); hole.absarc(0,0,holeR,0,Math.PI*2,true); shape.holes.push(hole);
+      const deck = reg(new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:0.14,bevelEnabled:false}), M.steelD));
+      deck.rotation.x = -Math.PI/2; deck.position.y = deckY; deck.castShadow=deck.receiveShadow=true; stand.add(deck);
+      // engine thrust-mount collar
+      const collar = reg(new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.22, 40, 1, true), M.metal));
       collar.material.side = THREE.DoubleSide; collar.position.y = deckY; stand.add(collar);
     })();
 
-    // ----- Launch / umbilical tower (lattice) on +X side -----
-    const TX = R + 1.55, foot = 0.36, towerTop = noseY + 0.2;
+    // ----- Service / umbilical tower with base + work platforms (+X side) -----
+    const TX = R + 1.5, foot = 0.34, towerTop = noseY + 0.15;
     (function tower(){
-      // 4 vertical posts
+      // base plate
+      const base = reg(new THREE.Mesh(new THREE.BoxGeometry(2*foot+0.5, 0.12, 2*foot+0.5), M.dark));
+      base.position.set(TX, 0.06, 0); base.receiveShadow=true; stand.add(base);
+      // 4 posts
       [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([sx,sz])=>{
-        const post = reg(new THREE.Mesh(new THREE.BoxGeometry(0.16, towerTop, 0.16), M.steel));
+        const post = reg(new THREE.Mesh(new THREE.BoxGeometry(0.17, towerTop, 0.17), M.steel));
         post.position.set(TX+sx*foot, towerTop/2, sz*foot); post.castShadow=true; stand.add(post);
       });
-      // horizontal rungs (square frames)
-      for(let y=0.4; y<towerTop-0.2; y+=1.05){
-        const bx = reg(new THREE.Mesh(new THREE.BoxGeometry(2*foot+0.16, 0.09, 0.09), M.steelD));
+      // horizontal rungs
+      for(let y=0.5; y<towerTop-0.2; y+=1.0){
+        const bx = reg(new THREE.Mesh(new THREE.BoxGeometry(2*foot+0.17, 0.085, 0.085), M.steelD));
         bx.position.set(TX, y, foot); stand.add(bx);
         const bx2 = bx.clone(); bx2.position.set(TX, y, -foot); stand.add(bx2);
-        const bz = reg(new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.09, 2*foot), M.steelD));
+        const bz = reg(new THREE.Mesh(new THREE.BoxGeometry(0.085, 0.085, 2*foot), M.steelD));
         bz.position.set(TX+foot, y, 0); stand.add(bz);
         const bz2 = bz.clone(); bz2.position.set(TX-foot, y, 0); stand.add(bz2);
       }
-      // outboard diagonal braces (X-pattern on the +X face)
-      for(let y=0.5; y<towerTop-1.4; y+=2.1){
-        const d = reg(new THREE.Mesh(new THREE.BoxGeometry(0.07, 1.55, 0.07), M.steelD));
-        d.position.set(TX+foot, y+0.55, 0); d.rotation.x = 0.72; stand.add(d);
-        const d2 = reg(new THREE.Mesh(new THREE.BoxGeometry(0.07, 1.55, 0.07), M.steelD));
-        d2.position.set(TX+foot, y+0.55, 0); d2.rotation.x = -0.72; stand.add(d2);
+      // outboard X-braces on the +X face
+      for(let y=0.6; y<towerTop-1.3; y+=2.0){
+        [0.7,-0.7].forEach(r=>{
+          const d = reg(new THREE.Mesh(new THREE.BoxGeometry(0.07, 1.5, 0.07), M.steelD));
+          d.position.set(TX+foot, y+0.55, 0); d.rotation.x = r; stand.add(d);
+        });
       }
+      // two work platforms reaching toward the rocket (with body clearance notch)
+      [worldY(oxSeg.mid)+0.15, worldY(fuelSeg.mid)].forEach(py=>{
+        const inX = TX - foot, outX = R + 0.16, span = inX - outX;
+        const shape = new THREE.Shape();
+        shape.moveTo(outX, -foot); shape.lineTo(inX, -foot);
+        shape.lineTo(inX, foot); shape.lineTo(outX, foot);
+        shape.absarc(0, 0, R + 0.14, Math.atan2(foot, outX), -Math.atan2(foot, outX), true);
+        const plat = reg(new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:0.06,bevelEnabled:false}), M.steelD));
+        plat.rotation.x = Math.PI/2; plat.position.y = py; plat.castShadow=true; stand.add(plat);
+      });
     })();
 
     // ----- Hold-down / guide clamp arms at three stations -----
     (function holdDown(){
-      [deckY+0.5, worldY(oxSeg.mid), worldY(Xtip-noseLen-0.15)].forEach(hz=>{
-        // clamp collar hugging the body
+      [deckY+0.35, worldY(oxSeg.mid), worldY(Xtip-noseLen-0.15)].forEach(hz=>{
         const collar = reg(new THREE.Mesh(
-          new THREE.CylinderGeometry(R+0.07, R+0.07, 0.18, 40, 1, true), M.yellow));
+          new THREE.CylinderGeometry(R+0.07, R+0.07, 0.17, 40, 1, true), M.yellow));
         collar.material.side = THREE.DoubleSide; collar.position.y = hz; collar.castShadow=true; stand.add(collar);
-        // two arms reaching to the tower
         [-0.18,0.18].forEach(sz=>{
           const span = (TX-foot) - R;
-          const arm = reg(new THREE.Mesh(new THREE.BoxGeometry(span, 0.1, 0.09), M.yellow));
+          const arm = reg(new THREE.Mesh(new THREE.BoxGeometry(span, 0.1, 0.085), M.yellow));
           arm.position.set(R + span/2, hz, sz); arm.castShadow=true; stand.add(arm);
         });
       });

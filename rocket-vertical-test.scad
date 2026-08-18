@@ -33,11 +33,12 @@ BELL_L      = 600;
 OAL = L_NOSE + L_PAYLOAD + L_IDBAND + L_OXTANK + L_INTER + L_FUEL + L_AFT;
 
 // Vertical-stand parameters
-PLAT   = 1600;                 // thrust-table / engine-mount height above pad
+PLAT   = 980;                  // engine-mount height above pad (low, grounded)
 BASE_Z = PLAT + OAL;           // world Z of nose tip
-TX     = BODY_R + 1500;        // umbilical tower centre offset (+X side)
+TX     = BODY_R + 1350;        // service-tower centre offset (+X side)
 PADR   = 6000;                 // ground-pad radius (shrink for tight previews)
-NOZ_Z  = PLAT - (160 + BELL_L);// approx nozzle-exit height above pad
+NOZ_Z  = PLAT - (160 + BELL_L);// approx nozzle-exit height above pad (~220 mm)
+SPAN   = 1000;                 // pedestal column half-spacing
 
 echo(str("OVERALL LENGTH (nose->mount) = ", OAL, " mm"));
 echo(str("STAND HEIGHT (pad->nose tip) = ", BASE_Z, " mm"));
@@ -115,89 +116,113 @@ module rocket_vertical(){
 }
 
 // =================== VERTICAL TEST STAND ====================================
-module thrust_table(){
-    // raised deck with central exhaust hole
-    color("slategray")
-    translate([0,0,PLAT-70])
+// Short, heavy braced pedestal carrying the engine mount just under 1 m up.
+module thrust_pedestal(){
+    colW = 300;
+    // four columns
+    for(sx=[-1,1], sy=[-1,1])
+      color("lightsteelblue")
+        translate([sx*SPAN, sy*SPAN, (PLAT-120)/2]) cube([colW,colW,PLAT-120], center=true);
+    // perimeter ring beams, top and bottom
+    for(z=[240, PLAT-160]) color("slategray"){
+        translate([0, SPAN,z]) cube([2*SPAN+colW,180,150], center=true);
+        translate([0,-SPAN,z]) cube([2*SPAN+colW,180,150], center=true);
+        translate([ SPAN,0,z]) cube([180,2*SPAN+colW,150], center=true);
+        translate([-SPAN,0,z]) cube([180,2*SPAN+colW,150], center=true);
+    }
+    // X-braces on all four faces
+    brace = 2*SPAN*1.28;
+    for(sy=[-1,1]) for(r=[42,-42]) color("slategray")
+        translate([0, sy*SPAN, PLAT*0.42]) rotate([0,r,0]) cube([brace,95,95], center=true);
+    for(sx=[-1,1]) for(r=[42,-42]) color("slategray")
+        translate([sx*SPAN, 0, PLAT*0.42]) rotate([r,0,0]) cube([95,brace,95], center=true);
+    // top deck with central exhaust hole
+    color("slategray") translate([0,0,PLAT-60])
       difference(){
-        cube([2800,2800,140], center=true);
-        cylinder(h=200, r=EXIT_R+220, center=true);
+        cube([2*SPAN+colW+260, 2*SPAN+colW+260, 120], center=true);
+        cylinder(h=200, r=EXIT_R+150, center=true);
       }
-    // four legs
-    for(a=[45:90:315])
-      rotate([0,0,a]) translate([1250,0,0])
-        color("lightsteelblue") translate([0,0,(PLAT-140)/2]) cube([260,260,PLAT-140], center=true);
-    // diagonal cross-braces between legs (outer ring)
-    for(a=[45:90:315])
-      rotate([0,0,a+45]) translate([1250*sqrt(0.5)*sqrt(2),0,PLAT*0.45])
-        color("lightsteelblue") rotate([90,0,0]) cube([60,1500,60], center=true);
-    // engine thrust-mount collar around the throat, sitting on the deck
-    color("steelblue")
-    translate([0,0,PLAT])
+    // engine thrust-mount collar
+    color("steelblue") translate([0,0,PLAT])
       difference(){
-        cylinder(h=220, r=AFT_R+130, center=true);
-        cylinder(h=240, r=AFT_R+30,  center=true);
-      }
-}
-
-module flame_deflector(){
-    // apex-up cone that splits the downward exhaust, on the pad centreline
-    color("dimgray") cylinder(h=1150, r1=1500, r2=0);
-    // surrounding lip / trench rim
-    color("slategray")
-      translate([0,0,60])
-      difference(){
-        cylinder(h=120, r=2400);
-        cylinder(h=140, r=1900, center=false);
+        cylinder(h=210, r=AFT_R+120, center=true);
+        cylinder(h=230, r=AFT_R+25,  center=true);
       }
 }
 
-// umbilical / hold-down launch tower on the +X side
-module launch_tower(){
-    postR = 90; foot = 350;          // posts on a 700 x 700 column
-    top = BASE_Z + 150;
-    // 4 vertical posts
+// Flame trench at grade with an angled deflector turning the jet toward -Y.
+module flame_trench(){
+    color("dimgray"){
+        // channel floor slab, running out toward -Y
+        translate([0,-1500,30]) cube([1750,3600,60], center=true);
+        // side walls
+        for(sx=[-1,1]) translate([sx*875,-1500,340]) cube([90,3600,620], center=true);
+        // head wall directly under the nozzle (+Y end of channel)
+        translate([0,320,340]) cube([1750,90,620], center=true);
+    }
+    // angled deflector ramp — ridge just under the nozzle (z=200), sloping
+    // down to the -Y end of the channel; turns the downward jet sideways.
+    W2 = 800;
+    color("slategray")
+      polyhedron(
+        points=[
+          [-W2, 300, 200], [-W2, 300, 40], [-W2, -2500, 40],
+          [ W2, 300, 200], [ W2, 300, 40], [ W2, -2500, 40] ],
+        faces=[ [0,1,2],[5,4,3],[0,2,5,3],[0,3,4,1],[1,4,5,2] ]);
+}
+
+// Service / umbilical tower on the +X side with two work platforms.
+module service_tower(){
+    postR = 90; foot = 330;
+    top = BASE_Z + 120;
+    // 4 vertical posts + base plate
+    color("dimgray") translate([TX,0,60]) cube([2*foot+3*postR, 2*foot+3*postR, 120], center=true);
     for(sx=[-1,1], sy=[-1,1])
       color("lightsteelblue")
         translate([TX+sx*foot, sy*foot, top/2]) cube([2*postR,2*postR,top], center=true);
-    // horizontal rungs (square frames) up the tower
-    for(z=[300:1100:top-200]){
-      color("slategray"){
-        translate([TX, 0, z]) cube([2*foot+2*postR, 2*postR, 90], center=true);      // front/back run in x
-        translate([TX, -foot, z]) rotate([0,0,90]) cube([2*foot, 2*postR, 90], center=true);
-        translate([TX,  foot, z]) rotate([0,0,90]) cube([2*foot, 2*postR, 90], center=true);
-      }
+    // horizontal rungs (square frames)
+    for(z=[350:1050:top-200]) color("slategray"){
+        translate([TX, foot, z]) cube([2*foot+2*postR, 2*postR, 85], center=true);
+        translate([TX,-foot, z]) cube([2*foot+2*postR, 2*postR, 85], center=true);
+        translate([TX+foot,0,z]) cube([2*postR, 2*foot, 85], center=true);
+        translate([TX-foot,0,z]) cube([2*postR, 2*foot, 85], center=true);
     }
-    // outboard diagonal braces (X pattern on the +X face)
-    for(z=[300:2200:top-1200])
-      color("slategray")
-        translate([TX+foot, 0, z+550]) rotate([45,0,0]) cube([2*postR,90,1500], center=true);
+    // outboard X-braces on the +X face
+    for(z=[400:2100:top-1300]) color("slategray"){
+        translate([TX+foot,0,z+520]) rotate([ 40,0,0]) cube([2*postR,85,1500], center=true);
+        translate([TX+foot,0,z+520]) rotate([-40,0,0]) cube([2*postR,85,1500], center=true);
+    }
+    // two work platforms reaching toward the rocket (with body clearance)
+    for(pz=[PLAT+OAL*0.35, PLAT+OAL*0.72]) color("slategray")
+      translate([(TX-foot+BODY_R+180)/2, 0, pz-70])
+        difference(){
+          cube([TX-foot-(BODY_R+180), 2*foot+120, 70], center=true);
+          translate([-(TX-foot-(BODY_R+180))/2,0,0]) cylinder(h=120, r=BODY_R+120, center=true);
+        }
 }
 
-// hold-down / guide arms clamping the airframe at three stations
+// Hold-down / guide clamp arms restraining the airframe.
 module holddown_arms(){
-    for(hz=[PLAT+450, PLAT+OAL*0.45, PLAT+OAL*0.82]){
-        // clamp collar around the body
+    for(hz=[PLAT+320, PLAT+OAL*0.5, PLAT+OAL*0.85]){
         color("gold")
           translate([0,0,hz])
           difference(){
-            cylinder(h=180, r=BODY_R+70, center=true);
-            cylinder(h=200, r=BODY_R+6,  center=true);
+            cylinder(h=170, r=BODY_R+65, center=true);
+            cylinder(h=190, r=BODY_R+6,  center=true);
           }
-        // two arms reaching to the tower
         for(sy=[-1,1])
           color("goldenrod")
-            translate([(BODY_R+70+TX-350)/2, sy*180, hz])
-              cube([TX-350-(BODY_R+70), 90, 110], center=true);
+            translate([(BODY_R+65+TX-330)/2, sy*175, hz])
+              cube([TX-330-(BODY_R+65), 85, 100], center=true);
     }
 }
 
 // =================== FULL ASSEMBLY ==========================================
 module assembly(){
     rocket_vertical();
-    thrust_table();
-    flame_deflector();
-    launch_tower();
+    thrust_pedestal();
+    flame_trench();
+    service_tower();
     holddown_arms();
     // ground pad
     color("darkslategray") translate([0,0,-5]) cylinder(h=10, r=PADR);
